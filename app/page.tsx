@@ -82,19 +82,11 @@ const Dashboard = () => {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-xl font-semibold text-gray-900">Properties</h1>
-          {properties.length > 0 && (
-            <p className="text-sm text-gray-500 mt-0.5">{properties.length} total</p>
-          )}
-        </div>
-        <Link
-          href="/properties/new"
-          className="text-sm bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors"
-        >
-          Add Property
-        </Link>
+      <div className="mb-6">
+        <h1 className="text-xl font-semibold text-gray-900">Properties</h1>
+        {properties.length > 0 && (
+          <p className="text-sm text-gray-500 mt-0.5">{properties.length} total</p>
+        )}
       </div>
       {properties.length === 0 ? renderEmptyState() : renderProperties()}
     </div>
