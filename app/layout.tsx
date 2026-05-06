@@ -12,6 +12,7 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: 'Buena',
   description: 'Property management, simplified.',
+  icons: { icon: '/buena_logo.png' },
 }
 
 const RootLayout = ({ children }: { children: React.ReactNode }) => (
