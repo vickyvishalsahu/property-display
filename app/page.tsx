@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { MOCK_PROPERTIES } from '@/mock/properties'
 import { ALL_MOCK_STAFF } from '@/mock/staff'
 import { MANAGEMENT_TYPE_LABELS } from '@/constants/propertyTypes'
+import { useProperties } from '@/hooks/useProperties'
 import type { Property } from '@/types/property'
 
 const formatPropertyNumber = (id: string) => `#${id.replace('prop-', '')}`
@@ -56,7 +57,8 @@ const PropertyCard = ({ property }: { property: Property }) => {
 }
 
 const Dashboard = () => {
-  const properties = MOCK_PROPERTIES
+  const { properties: userProperties } = useProperties()
+  const properties = [...MOCK_PROPERTIES, ...userProperties]
 
   const renderEmptyState = () => (
     <div className="flex flex-col items-center justify-center py-24 text-center gap-4">
