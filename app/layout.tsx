@@ -1,6 +1,13 @@
 import type { Metadata } from 'next'
+import { Inter } from 'next/font/google'
 import Link from 'next/link'
 import './globals.css'
+
+const inter = Inter({
+  subsets: ['latin'],
+  weight: ['500'],
+  variable: '--font-inter',
+})
 
 export const metadata: Metadata = {
   title: 'Buena',
@@ -8,7 +15,7 @@ export const metadata: Metadata = {
 }
 
 const RootLayout = ({ children }: { children: React.ReactNode }) => (
-  <html lang="en">
+  <html lang="en" className={inter.variable}>
     <body className="min-h-screen bg-gray-50 text-gray-900 antialiased">
       <nav className="bg-white border-b border-gray-200">
         <div className="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between">
