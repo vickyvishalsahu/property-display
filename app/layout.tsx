@@ -1,0 +1,31 @@
+import type { Metadata } from 'next'
+import Link from 'next/link'
+import './globals.css'
+
+export const metadata: Metadata = {
+  title: 'Buena',
+  description: 'Property management, simplified.',
+}
+
+const RootLayout = ({ children }: { children: React.ReactNode }) => (
+  <html lang="en">
+    <body className="min-h-screen bg-gray-50 text-gray-900 antialiased">
+      <nav className="bg-white border-b border-gray-200">
+        <div className="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between">
+          <Link href="/" className="font-semibold text-lg tracking-tight">
+            Buena
+          </Link>
+          <Link
+            href="/properties/new"
+            className="text-sm bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors"
+          >
+            Add Property
+          </Link>
+        </div>
+      </nav>
+      <main className="max-w-5xl mx-auto px-6 py-10">{children}</main>
+    </body>
+  </html>
+)
+
+export default RootLayout
