@@ -218,7 +218,7 @@ describe('usePropertyForm', () => {
       await act(async () => { result.current.activateDraft() })
       act(() => { result.current.setName('First') })
       act(() => { result.current.setName('Second') })
-      const ids = mockUpsertProperty.mock.calls.map((call: [Property]) => call[0].id)
+      const ids = mockUpsertProperty.mock.calls.map((call) => (call[0] as Property).id)
       const uniqueIds = new Set(ids)
       expect(uniqueIds.size).toBe(1)
     })

@@ -29,6 +29,10 @@ const baseBuilding: FormBuilding = {
   units: [emptyUnit()],
 }
 
+vi.mock('@vis.gl/react-google-maps', () => ({
+  useMapsLibrary: () => null,
+}))
+
 const defaultProps = {
   building: baseBuilding,
   buildingIndex: 0,
@@ -36,7 +40,7 @@ const defaultProps = {
   canRemove: false,
   onRemove: vi.fn(),
   onToggleSecondAddress: vi.fn(),
-  onUpdateAddress: vi.fn(),
+  onSetAddress: vi.fn(),
   onAddUnit: vi.fn(),
   onRemoveUnit: vi.fn(),
   onUpdateUnit: vi.fn(),

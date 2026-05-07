@@ -2,6 +2,7 @@
 
 import { VALID_UNIT_TYPES, UNIT_TYPE_LABELS } from '@/domains/propertyCreation/constants/unitTypes'
 import type { FormBuilding, FormAddress, FormUnit } from '@/domains/propertyCreation/hooks/usePropertyForm'
+import { AddressAutocomplete } from '@/domains/propertyCreation/components/AddressAutocomplete'
 
 type Props = {
   building: FormBuilding
@@ -10,7 +11,7 @@ type Props = {
   canRemove: boolean
   onRemove: () => void
   onToggleSecondAddress: () => void
-  onUpdateAddress: (addressIndex: 0 | 1, field: keyof FormAddress, fieldValue: string) => void
+  onSetAddress: (addressIndex: 0 | 1, address: FormAddress) => void
   onAddUnit: () => void
   onRemoveUnit: (unitId: string) => void
   onUpdateUnit: (unitId: string, field: keyof FormUnit, fieldValue: string) => void
@@ -19,56 +20,6 @@ type Props = {
 const inputClass =
   'w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900'
 
-type AddressFieldsProps = {
-  address: FormAddress
-  onChange: (field: keyof FormAddress, fieldValue: string) => void
-}
-
-const AddressFields = ({ address, onChange }: AddressFieldsProps) => (
-  <div className="grid grid-cols-2 gap-3">
-    <div className="col-span-2 sm:col-span-1">
-      <label className="block text-xs text-gray-500 mb-1">Street name</label>
-      <input
-        type="text"
-        required
-        value={address.streetName}
-        onChange={(event) => onChange('streetName', event.target.value)}
-        className={inputClass}
-      />
-    </div>
-    <div>
-      <label className="block text-xs text-gray-500 mb-1">Number</label>
-      <input
-        type="text"
-        required
-        value={address.streetNumber}
-        onChange={(event) => onChange('streetNumber', event.target.value)}
-        className={inputClass}
-      />
-    </div>
-    <div>
-      <label className="block text-xs text-gray-500 mb-1">Postal code</label>
-      <input
-        type="text"
-        required
-        value={address.postalCode}
-        onChange={(event) => onChange('postalCode', event.target.value)}
-        className={inputClass}
-      />
-    </div>
-    <div className="col-span-2 sm:col-span-1">
-      <label className="block text-xs text-gray-500 mb-1">City</label>
-      <input
-        type="text"
-        required
-        value={address.city}
-        onChange={(event) => onChange('city', event.target.value)}
-        className={inputClass}
-      />
-    </div>
-  </div>
-)
-
 export const BuildingForm = ({
   building,
   buildingIndex,
@@ -76,7 +27,7 @@ export const BuildingForm = ({
   canRemove,
   onRemove,
   onToggleSecondAddress,
-  onUpdateAddress,
+  onSetAddress,
   onAddUnit,
   onRemoveUnit,
   onUpdateUnit,
@@ -108,9 +59,9 @@ export const BuildingForm = ({
             Remove
           </button>
         </div>
-        <AddressFields
+        <AddressAutocomplete
           address={building.addresses[1]}
-          onChange={(field, fieldValue) => onUpdateAddress(1, field, fieldValue)}
+          onSelect={(address) => onSetAddress(1, address)}
         />
       </div>
     )
@@ -247,9 +198,9 @@ export const BuildingForm = ({
 
       <div className="flex flex-col gap-3">
         <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Address 1</p>
-        <AddressFields
+        <AddressAutocomplete
           address={building.addresses[0]}
-          onChange={(field, fieldValue) => onUpdateAddress(0, field, fieldValue)}
+          onSelect={(address) => onSetAddress(0, address)}
         />
       </div>
 

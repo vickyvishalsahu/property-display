@@ -29,13 +29,17 @@ const makeBuilding = (id: string): FormBuilding => ({
   units: [emptyUnit()],
 })
 
+vi.mock('@vis.gl/react-google-maps', () => ({
+  useMapsLibrary: () => null,
+}))
+
 const defaultProps = {
   managementType: 'MV' as const,
   buildings: [makeBuilding('bld-1')],
   addBuilding: vi.fn(),
   removeBuilding: vi.fn(),
   toggleSecondAddress: vi.fn(),
-  updateAddress: vi.fn(),
+  setAddress: vi.fn(),
   addUnit: vi.fn(),
   removeUnit: vi.fn(),
   updateUnit: vi.fn(),

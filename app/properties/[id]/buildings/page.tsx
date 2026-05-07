@@ -18,7 +18,7 @@ const BuildingsStep = () => {
     addBuilding,
     removeBuilding,
     toggleSecondAddress,
-    updateAddress,
+    setAddress,
     addUnit,
     removeUnit,
     updateUnit,
@@ -46,7 +46,7 @@ const BuildingsStep = () => {
         addBuilding={addBuilding}
         removeBuilding={removeBuilding}
         toggleSecondAddress={toggleSecondAddress}
-        updateAddress={updateAddress}
+        setAddress={setAddress}
         addUnit={addUnit}
         removeUnit={removeUnit}
         updateUnit={updateUnit}

@@ -258,6 +258,20 @@ export const usePropertyForm = (initialPropertyId?: string) => {
       }),
     }))
 
+  const setAddress = (buildingId: string, addressIndex: 0 | 1, address: FormAddress) =>
+    setForm((previousForm) => ({
+      ...previousForm,
+      buildings: previousForm.buildings.map((building) => {
+        if (building.id !== buildingId) return building
+        const updatedAddresses: [FormAddress, FormAddress | null] = [
+          building.addresses[0],
+          building.addresses[1],
+        ]
+        updatedAddresses[addressIndex] = address
+        return { ...building, addresses: updatedAddresses }
+      }),
+    }))
+
   const updateAddress = (
     buildingId: string,
     addressIndex: 0 | 1,
@@ -332,6 +346,7 @@ export const usePropertyForm = (initialPropertyId?: string) => {
     addBuilding,
     removeBuilding,
     toggleSecondAddress,
+    setAddress,
     updateAddress,
     addUnit,
     removeUnit,

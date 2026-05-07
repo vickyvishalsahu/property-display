@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google'
 import Link from 'next/link'
 import { HelpPanelProvider } from '@/domains/shared/context/HelpPanelContext'
 import { HelpPanel } from '@/domains/shared/components/HelpPanel'
+import { GoogleMapsProvider } from './GoogleMapsProvider'
 import './globals.css'
 
 const inter = Inter({
@@ -20,6 +21,7 @@ export const metadata: Metadata = {
 const RootLayout = ({ children }: { children: React.ReactNode }) => (
   <html lang="en" className={inter.variable}>
     <body className="min-h-screen bg-gray-50 text-gray-900 antialiased">
+      <GoogleMapsProvider>
       <HelpPanelProvider>
         <nav className="bg-white border-b border-gray-200">
           <div className="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between">
@@ -37,6 +39,7 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => (
         <main className="max-w-5xl mx-auto px-6 py-10">{children}</main>
         <HelpPanel />
       </HelpPanelProvider>
+      </GoogleMapsProvider>
     </body>
   </html>
 )

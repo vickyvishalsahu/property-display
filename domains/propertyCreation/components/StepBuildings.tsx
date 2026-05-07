@@ -9,7 +9,7 @@ type Props = {
   addBuilding: () => void
   removeBuilding: (buildingId: string) => void
   toggleSecondAddress: (buildingId: string) => void
-  updateAddress: (buildingId: string, addressIndex: 0 | 1, field: keyof FormAddress, fieldValue: string) => void
+  setAddress: (buildingId: string, addressIndex: 0 | 1, address: FormAddress) => void
   addUnit: (buildingId: string) => void
   removeUnit: (buildingId: string, unitId: string) => void
   updateUnit: (buildingId: string, unitId: string, field: keyof FormUnit, fieldValue: string) => void
@@ -23,7 +23,7 @@ export const StepBuildings = ({
   addBuilding,
   removeBuilding,
   toggleSecondAddress,
-  updateAddress,
+  setAddress,
   addUnit,
   removeUnit,
   updateUnit,
@@ -47,9 +47,7 @@ export const StepBuildings = ({
         canRemove={buildings.length > 1}
         onRemove={() => removeBuilding(building.id)}
         onToggleSecondAddress={() => toggleSecondAddress(building.id)}
-        onUpdateAddress={(addressIndex, field, fieldValue) =>
-          updateAddress(building.id, addressIndex, field, fieldValue)
-        }
+        onSetAddress={(addressIndex, address) => setAddress(building.id, addressIndex, address)}
         onAddUnit={() => addUnit(building.id)}
         onRemoveUnit={(unitId) => removeUnit(building.id, unitId)}
         onUpdateUnit={(unitId, field, fieldValue) => updateUnit(building.id, unitId, field, fieldValue)}

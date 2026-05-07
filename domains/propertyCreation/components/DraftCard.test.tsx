@@ -13,7 +13,7 @@ const makeDraftProperty = (overrides: Partial<Property> = {}): Property => ({
   managementType: 'WEG',
   buildings: [],
   ...overrides,
-})
+} as Property)
 
 describe('DraftCard', () => {
   it('renders the property name', () => {

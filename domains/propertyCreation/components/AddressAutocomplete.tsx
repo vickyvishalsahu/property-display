@@ -1,0 +1,135 @@
+'use client'
+
+import { useState, useEffect, useRef } from 'react'
+import { usePlaces, getAddressObject } from '@/domains/shared/hooks/usePlaces'
+import type { FormAddress } from '@/domains/propertyCreation/hooks/usePropertyForm'
+
+type Props = {
+  address: FormAddress
+  onSelect: (address: FormAddress) => void
+}
+
+const formatAddress = (address: FormAddress): string => {
+  const parts = [
+    address.streetName && address.streetNumber
+      ? `${address.streetName} ${address.streetNumber}`
+      : address.streetName || address.streetNumber,
+    address.postalCode && address.city
+      ? `${address.postalCode} ${address.city}`
+      : address.postalCode || address.city,
+  ].filter(Boolean)
+  return parts.join(', ')
+}
+
+const inputClass =
+  'w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900'
+
+export const AddressAutocomplete = ({ address, onSelect }: Props) => {
+  const { fetchPredictions, fetchAddressDetails, attributionRef } = usePlaces()
+
+  const [query, setQuery] = useState('')
+  const [predictions, setPredictions] = useState<google.maps.places.AutocompletePrediction[]>([])
+  const [isLoading, setIsLoading] = useState(false)
+  const [isOpen, setIsOpen] = useState(false)
+  const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const containerRef = useRef<HTMLDivElement | null>(null)
+
+  const displayValue = query || formatAddress(address)
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value
+    setQuery(value)
+    setIsOpen(true)
+
+    if (debounceTimer.current) clearTimeout(debounceTimer.current)
+
+    if (!value.trim()) {
+      setPredictions([])
+      setIsLoading(false)
+      return
+    }
+
+    setIsLoading(true)
+    debounceTimer.current = setTimeout(async () => {
+      const results = await fetchPredictions(value)
+      setPredictions(results)
+      setIsLoading(false)
+    }, 300)
+  }
+
+  const handleSelect = async (prediction: google.maps.places.AutocompletePrediction) => {
+    setIsOpen(false)
+    setQuery(prediction.description)
+    setPredictions([])
+
+    const placeResult = await fetchAddressDetails(prediction.place_id)
+    if (!placeResult) return
+
+    const parsed = getAddressObject(placeResult)
+    if (!parsed) return
+
+    setQuery('')
+    onSelect(parsed)
+  }
+
+  const handleFocus = () => {
+    if (predictions.length > 0) setIsOpen(true)
+    setQuery('')
+  }
+
+  const renderDropdown = () => {
+    if (!isOpen) return null
+
+    if (isLoading) {
+      return (
+        <div className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-md py-2 px-3">
+          <p className="text-sm text-gray-400">Searching…</p>
+        </div>
+      )
+    }
+
+    if (!predictions.length) return null
+
+    return (
+      <ul className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-md overflow-hidden">
+        {predictions.map((prediction) => (
+          <li key={prediction.place_id}>
+            <button
+              type="button"
+              onClick={() => handleSelect(prediction)}
+              className="w-full text-left px-3 py-2 text-sm text-gray-900 hover:bg-gray-50"
+            >
+              {prediction.description}
+            </button>
+          </li>
+        ))}
+      </ul>
+    )
+  }
+
+  return (
+    <div ref={containerRef} className="relative">
+      <input
+        type="text"
+        value={displayValue}
+        onChange={handleInputChange}
+        onFocus={handleFocus}
+        placeholder="Search address…"
+        className={inputClass}
+        autoComplete="off"
+      />
+      {renderDropdown()}
+      <div ref={attributionRef} className="hidden" />
+    </div>
+  )
+}
