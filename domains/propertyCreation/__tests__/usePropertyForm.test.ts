@@ -13,6 +13,7 @@ vi.mock('@/domains/shared/hooks/useProperties', () => ({
 describe('usePropertyForm', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    localStorage.clear()
   })
 
   describe('initial state', () => {
@@ -149,6 +150,84 @@ describe('usePropertyForm', () => {
       const unitId = result.current.form.buildings[0].units[0].id
       act(() => { result.current.updateUnit(buildingId, unitId, 'floor', '2') })
       expect(result.current.form.buildings[0].units[0].number).toBe('')
+    })
+  })
+
+  describe('draft behaviour', () => {
+    const storedDraft = {
+      managementType: 'WEG' as const,
+      name: 'Togostraße EG',
+      managerId: 'mgr-1',
+      accountantId: 'acc-1',
+      buildings: [],
+    }
+
+    it('pendingDraft is null on mount when localStorage is empty', async () => {
+      const { result } = renderHook(() => usePropertyForm())
+      await act(async () => {})
+      expect(result.current.pendingDraft).toBeNull()
+    })
+
+    it('pendingDraft is set on mount when localStorage has a valid draft', async () => {
+      localStorage.setItem('buena_property_draft', JSON.stringify(storedDraft))
+      const { result } = renderHook(() => usePropertyForm())
+      await act(async () => {})
+      expect(result.current.pendingDraft).toEqual(storedDraft)
+    })
+
+    it('does not save to localStorage before activateDraft is called', () => {
+      const { result } = renderHook(() => usePropertyForm())
+      act(() => { result.current.setName('Test') })
+      expect(localStorage.getItem('buena_property_draft')).toBeNull()
+    })
+
+    it('saves to localStorage immediately when activateDraft is called', async () => {
+      const { result } = renderHook(() => usePropertyForm())
+      act(() => { result.current.setName('Test Property') })
+      await act(async () => { result.current.activateDraft() })
+      expect(localStorage.getItem('buena_property_draft')).not.toBeNull()
+    })
+
+    it('saves updated form to localStorage on every change after activation', async () => {
+      const { result } = renderHook(() => usePropertyForm())
+      await act(async () => { result.current.activateDraft() })
+      act(() => { result.current.setName('Updated Name') })
+      const saved = JSON.parse(localStorage.getItem('buena_property_draft')!)
+      expect(saved.name).toBe('Updated Name')
+    })
+
+    it('restoreDraft replaces form state with the stored draft', async () => {
+      localStorage.setItem('buena_property_draft', JSON.stringify(storedDraft))
+      const { result } = renderHook(() => usePropertyForm())
+      await act(async () => {})
+      act(() => { result.current.restoreDraft() })
+      expect(result.current.form.name).toBe('Togostraße EG')
+      expect(result.current.form.managementType).toBe('WEG')
+    })
+
+    it('restoreDraft clears pendingDraft from memory', async () => {
+      localStorage.setItem('buena_property_draft', JSON.stringify(storedDraft))
+      const { result } = renderHook(() => usePropertyForm())
+      await act(async () => {})
+      act(() => { result.current.restoreDraft() })
+      expect(result.current.pendingDraft).toBeNull()
+    })
+
+    it('discardDraft clears localStorage and sets pendingDraft to null', async () => {
+      localStorage.setItem('buena_property_draft', JSON.stringify(storedDraft))
+      const { result } = renderHook(() => usePropertyForm())
+      await act(async () => {})
+      act(() => { result.current.discardDraft() })
+      expect(localStorage.getItem('buena_property_draft')).toBeNull()
+      expect(result.current.pendingDraft).toBeNull()
+    })
+
+    it('submit clears draft from localStorage', async () => {
+      const { result } = renderHook(() => usePropertyForm())
+      await act(async () => { result.current.activateDraft() })
+      act(() => { result.current.setManagementType('MV') })
+      act(() => { result.current.submit() })
+      expect(localStorage.getItem('buena_property_draft')).toBeNull()
     })
   })
 })

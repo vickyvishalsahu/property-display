@@ -1,8 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useProperties } from '@/domains/shared/hooks/useProperties'
+import { useDraft } from '@/domains/propertyCreation/hooks/useDraft'
 import type { ManagementType, UnitType, Address, WEGProperty, MVProperty, WEGUnit, MVUnit } from '@/domains/shared/types/property'
 
 export type FormAddress = {
@@ -139,9 +140,35 @@ export const usePropertyForm = () => {
     buildings: [emptyBuilding()],
   }
   const [form, setForm] = useState<FormState>(initialFormState)
+  const [isDraftActive, setIsDraftActive] = useState(false)
+  const [pendingDraft, setPendingDraft] = useState<FormState | null>(null)
 
+  const { readDraft, saveDraft, clearDraft } = useDraft()
   const { addProperty } = useProperties()
   const router = useRouter()
+
+  useEffect(() => {
+    const draft = readDraft()
+    if (draft) setPendingDraft(draft)
+  }, [])
+
+  useEffect(() => {
+    if (isDraftActive) saveDraft(form)
+  }, [form, isDraftActive])
+
+  const activateDraft = () => setIsDraftActive(true)
+
+  const restoreDraft = () => {
+    if (!pendingDraft) return
+    setForm(pendingDraft)
+    setIsDraftActive(true)
+    setPendingDraft(null)
+  }
+
+  const discardDraft = () => {
+    clearDraft()
+    setPendingDraft(null)
+  }
 
   const setManagementType = (managementType: ManagementType) =>
     setForm((previousForm) => ({ ...previousForm, managementType }))
@@ -243,6 +270,7 @@ export const usePropertyForm = () => {
   const submit = () => {
     const property = buildProperty(form)
     addProperty(property)
+    clearDraft()
     router.push('/')
   }
 
@@ -260,5 +288,9 @@ export const usePropertyForm = () => {
     removeUnit,
     updateUnit,
     submit,
+    pendingDraft,
+    activateDraft,
+    restoreDraft,
+    discardDraft,
   }
 }
