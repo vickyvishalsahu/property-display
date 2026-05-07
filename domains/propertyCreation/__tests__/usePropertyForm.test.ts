@@ -1,14 +1,22 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
 import { usePropertyForm } from '@/domains/propertyCreation/hooks/usePropertyForm'
-import type { DraftEntry } from '@/domains/propertyCreation/hooks/useDraft'
+import type { Property } from '@/domains/shared/types/property'
 
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: vi.fn() }),
 }))
 
+const mockUpsertProperty = vi.fn()
+const mockRemoveProperty = vi.fn()
+let mockProperties: Property[] = []
+
 vi.mock('@/domains/shared/hooks/useProperties', () => ({
-  useProperties: () => ({ addProperty: vi.fn(), properties: [] }),
+  useProperties: () => ({
+    upsertProperty: mockUpsertProperty,
+    removeProperty: mockRemoveProperty,
+    properties: mockProperties,
+  }),
 }))
 
 describe('usePropertyForm', () => {
@@ -155,127 +163,93 @@ describe('usePropertyForm', () => {
   })
 
   describe('draft behaviour', () => {
-    const DRAFTS_KEY = 'buena_property_drafts'
+    beforeEach(() => {
+      mockProperties = []
+      mockUpsertProperty.mockClear()
+      mockRemoveProperty.mockClear()
+    })
 
-    const makeDraftEntry = (id: string, name: string): DraftEntry => ({
+    const makeDraftProperty = (id: string, name: string): Property => ({
       id,
-      savedAt: Date.now(),
-      form: { managementType: 'WEG', name, managerId: 'mgr-1', accountantId: 'acc-1', buildings: [] },
+      name,
+      managerId: 'mgr-1',
+      accountantId: 'acc-1',
+      isDraft: true,
+      managementType: 'WEG',
+      buildings: [],
     })
 
-    const seedDrafts = (entries: DraftEntry[]) => {
-      localStorage.setItem(DRAFTS_KEY, JSON.stringify(entries))
-    }
-
-    const readDraftsFromStorage = (): DraftEntry[] => {
-      const stored = localStorage.getItem(DRAFTS_KEY)
-      return stored ? JSON.parse(stored) : []
-    }
-
-    it('pendingDrafts is [] on mount when localStorage is empty', async () => {
-      const { result } = renderHook(() => usePropertyForm())
-      await act(async () => {})
-      expect(result.current.pendingDrafts).toEqual([])
-    })
-
-    it('pendingDrafts contains all stored drafts on mount', async () => {
-      const entries = [makeDraftEntry('id-1', 'Draft A'), makeDraftEntry('id-2', 'Draft B')]
-      seedDrafts(entries)
-      const { result } = renderHook(() => usePropertyForm())
-      await act(async () => {})
-      expect(result.current.pendingDrafts).toHaveLength(2)
-    })
-
-    it('does not save to localStorage before activateDraft is called', () => {
+    it('does not call upsertProperty before activateDraft is called', () => {
       const { result } = renderHook(() => usePropertyForm())
       act(() => { result.current.setName('Test') })
-      expect(readDraftsFromStorage()).toHaveLength(0)
+      expect(mockUpsertProperty).not.toHaveBeenCalled()
     })
 
-    it('saves a new draft entry to localStorage when activateDraft is called', async () => {
+    it('activateDraft calls upsertProperty with isDraft: true', async () => {
       const { result } = renderHook(() => usePropertyForm())
       act(() => { result.current.setName('Test Property') })
       await act(async () => { result.current.activateDraft() })
-      expect(readDraftsFromStorage()).toHaveLength(1)
-      expect(readDraftsFromStorage()[0].form.name).toBe('Test Property')
+      expect(mockUpsertProperty).toHaveBeenCalledWith(
+        expect.objectContaining({ isDraft: true, name: 'Test Property' }),
+      )
     })
 
-    it('saves updated form to the same draft entry on every change after activation', async () => {
+    it('activateDraft is idempotent — calling twice does not create a second property', async () => {
       const { result } = renderHook(() => usePropertyForm())
       await act(async () => { result.current.activateDraft() })
+      const callCountAfterFirst = mockUpsertProperty.mock.calls.length
+      await act(async () => { result.current.activateDraft() })
+      expect(mockUpsertProperty.mock.calls.length).toBe(callCountAfterFirst)
+    })
+
+    it('form changes after activation call upsertProperty with updated data', async () => {
+      const { result } = renderHook(() => usePropertyForm())
+      await act(async () => { result.current.activateDraft() })
+      mockUpsertProperty.mockClear()
       act(() => { result.current.setName('Updated Name') })
-      const drafts = readDraftsFromStorage()
-      expect(drafts).toHaveLength(1)
-      expect(drafts[0].form.name).toBe('Updated Name')
+      expect(mockUpsertProperty).toHaveBeenCalledWith(
+        expect.objectContaining({ isDraft: true, name: 'Updated Name' }),
+      )
     })
 
-    it('restoreDraft(id) replaces form state with the matching draft', async () => {
-      const entry = makeDraftEntry('id-1', 'Togostraße EG')
-      seedDrafts([entry])
+    it('all upsertProperty calls use the same property id', async () => {
       const { result } = renderHook(() => usePropertyForm())
-      await act(async () => {})
-      act(() => { result.current.restoreDraft('id-1') })
-      expect(result.current.form.name).toBe('Togostraße EG')
-      expect(result.current.form.managementType).toBe('WEG')
+      await act(async () => { result.current.activateDraft() })
+      act(() => { result.current.setName('First') })
+      act(() => { result.current.setName('Second') })
+      const ids = mockUpsertProperty.mock.calls.map((call: [Property]) => call[0].id)
+      const uniqueIds = new Set(ids)
+      expect(uniqueIds.size).toBe(1)
     })
 
-    it('restoreDraft(id) removes the restored draft from pendingDrafts', async () => {
-      const entries = [makeDraftEntry('id-1', 'Draft A'), makeDraftEntry('id-2', 'Draft B')]
-      seedDrafts(entries)
-      const { result } = renderHook(() => usePropertyForm())
-      await act(async () => {})
-      act(() => { result.current.restoreDraft('id-1') })
-      expect(result.current.pendingDrafts).toHaveLength(1)
-      expect(result.current.pendingDrafts[0].id).toBe('id-2')
-    })
-
-    it('restoreDraft(id) continues saving to the same draft slot', async () => {
-      const entry = makeDraftEntry('id-1', 'Original Name')
-      seedDrafts([entry])
-      const { result } = renderHook(() => usePropertyForm())
-      await act(async () => {})
-      act(() => { result.current.restoreDraft('id-1') })
-      act(() => { result.current.setName('Modified Name') })
-      const drafts = readDraftsFromStorage()
-      expect(drafts).toHaveLength(1)
-      expect(drafts[0].id).toBe('id-1')
-      expect(drafts[0].form.name).toBe('Modified Name')
-    })
-
-    it('discardDraft(id) removes only the matching entry from localStorage', async () => {
-      const entries = [makeDraftEntry('id-1', 'Draft A'), makeDraftEntry('id-2', 'Draft B')]
-      seedDrafts(entries)
-      const { result } = renderHook(() => usePropertyForm())
-      await act(async () => {})
-      act(() => { result.current.discardDraft('id-1') })
-      const drafts = readDraftsFromStorage()
-      expect(drafts).toHaveLength(1)
-      expect(drafts[0].id).toBe('id-2')
-      expect(result.current.pendingDrafts).toHaveLength(1)
-    })
-
-    it('submit clears only the current session draft from localStorage', async () => {
-      const otherEntry = makeDraftEntry('other-id', 'Other Draft')
-      seedDrafts([otherEntry])
+    it('submit calls upsertProperty with isDraft: false', async () => {
       const { result } = renderHook(() => usePropertyForm())
       await act(async () => { result.current.activateDraft() })
       act(() => { result.current.setManagementType('MV') })
+      mockUpsertProperty.mockClear()
       act(() => { result.current.submit() })
-      const remaining = readDraftsFromStorage()
-      expect(remaining).toHaveLength(1)
-      expect(remaining[0].id).toBe('other-id')
+      expect(mockUpsertProperty).toHaveBeenCalledWith(
+        expect.objectContaining({ isDraft: false }),
+      )
     })
 
-    it('auto-restores draft and activates saving when initialDraftId matches', async () => {
-      const entry = makeDraftEntry('id-auto', 'Auto Restored')
-      seedDrafts([entry])
+    it('auto-restores form when initialDraftId matches a property in the list', async () => {
+      mockProperties = [makeDraftProperty('id-auto', 'Auto Restored')]
       const { result } = renderHook(() => usePropertyForm('id-auto'))
       await act(async () => {})
       expect(result.current.form.name).toBe('Auto Restored')
-      act(() => { result.current.setName('Modified After Restore') })
-      const drafts = readDraftsFromStorage()
-      expect(drafts[0].id).toBe('id-auto')
-      expect(drafts[0].form.name).toBe('Modified After Restore')
+      expect(result.current.form.managementType).toBe('WEG')
+    })
+
+    it('auto-restore activates saving to the same property id', async () => {
+      mockProperties = [makeDraftProperty('id-auto', 'Auto Restored')]
+      const { result } = renderHook(() => usePropertyForm('id-auto'))
+      await act(async () => {})
+      mockUpsertProperty.mockClear()
+      act(() => { result.current.setName('Modified') })
+      expect(mockUpsertProperty).toHaveBeenCalledWith(
+        expect.objectContaining({ id: 'id-auto', name: 'Modified' }),
+      )
     })
   })
 })

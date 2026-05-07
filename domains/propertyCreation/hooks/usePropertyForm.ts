@@ -3,9 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useProperties } from '@/domains/shared/hooks/useProperties'
-import { useDraft } from '@/domains/propertyCreation/hooks/useDraft'
-import type { DraftEntry } from '@/domains/propertyCreation/hooks/useDraft'
-import type { ManagementType, UnitType, Address, WEGProperty, MVProperty, WEGUnit, MVUnit } from '@/domains/shared/types/property'
+import type { ManagementType, UnitType, Address, WEGProperty, MVProperty, WEGUnit, MVUnit, Property } from '@/domains/shared/types/property'
 
 export type FormAddress = {
   streetName: string
@@ -74,12 +72,25 @@ const toAddress = (formAddress: FormAddress): Address => ({
   city: formAddress.city,
 })
 
-const buildProperty = (form: FormState): WEGProperty | MVProperty => {
+const safeInt = (value: string) => {
+  const parsed = parseInt(value, 10)
+  return isNaN(parsed) ? 0 : parsed
+}
+
+const safeFloat = (value: string) => {
+  const parsed = parseFloat(value)
+  return isNaN(parsed) ? 0 : parsed
+}
+
+const safeString = (value: number) => (isNaN(value) ? '' : String(value))
+
+const buildProperty = (form: FormState, propertyId: string, isDraft: boolean): WEGProperty | MVProperty => {
   const base = {
-    id: makeId('prop'),
+    id: propertyId,
     name: form.name,
     managerId: form.managerId,
     accountantId: form.accountantId,
+    isDraft,
   }
 
   if (form.managementType === 'WEG') {
@@ -92,18 +103,18 @@ const buildProperty = (form: FormState): WEGProperty | MVProperty => {
           : [toAddress(building.addresses[0])]
 
         const units: WEGUnit[] = building.units.map((unit) => ({
-          id: makeId('unit'),
+          id: unit.id,
           number: unit.number,
           type: unit.type as UnitType,
-          floor: parseInt(unit.floor, 10),
+          floor: safeInt(unit.floor),
           entrance: unit.entrance,
-          size: parseFloat(unit.size),
-          rooms: parseInt(unit.rooms, 10),
-          constructionYear: parseInt(unit.constructionYear, 10),
-          coOwnershipShare: parseFloat(unit.coOwnershipShare),
+          size: safeFloat(unit.size),
+          rooms: safeInt(unit.rooms),
+          constructionYear: safeInt(unit.constructionYear),
+          coOwnershipShare: safeFloat(unit.coOwnershipShare),
         }))
 
-        return { id: makeId('bld'), addresses, units }
+        return { id: building.id, addresses, units }
       }),
     }
   }
@@ -117,20 +128,57 @@ const buildProperty = (form: FormState): WEGProperty | MVProperty => {
         : [toAddress(building.addresses[0])]
 
       const units: MVUnit[] = building.units.map((unit) => ({
-        id: makeId('unit'),
+        id: unit.id,
         number: unit.number,
         type: unit.type as UnitType,
-        floor: parseInt(unit.floor, 10),
+        floor: safeInt(unit.floor),
         entrance: unit.entrance,
-        size: parseFloat(unit.size),
-        rooms: parseInt(unit.rooms, 10),
-        constructionYear: parseInt(unit.constructionYear, 10),
+        size: safeFloat(unit.size),
+        rooms: safeInt(unit.rooms),
+        constructionYear: safeInt(unit.constructionYear),
       }))
 
-      return { id: makeId('bld'), addresses, units }
+      return { id: building.id, addresses, units }
     }),
   }
 }
+
+const formFromProperty = (property: Property): FormState => ({
+  managementType: property.managementType,
+  name: property.name,
+  managerId: property.managerId,
+  accountantId: property.accountantId,
+  buildings: property.buildings.map((building) => ({
+    id: building.id,
+    addresses: [
+      {
+        streetName: building.addresses[0].streetName,
+        streetNumber: building.addresses[0].streetNumber,
+        postalCode: building.addresses[0].postalCode,
+        city: building.addresses[0].city,
+      },
+      building.addresses[1]
+        ? {
+            streetName: building.addresses[1].streetName,
+            streetNumber: building.addresses[1].streetNumber,
+            postalCode: building.addresses[1].postalCode,
+            city: building.addresses[1].city,
+          }
+        : null,
+    ] as [FormAddress, FormAddress | null],
+    units: building.units.map((unit) => ({
+      id: unit.id,
+      number: unit.number,
+      type: unit.type,
+      floor: safeString(unit.floor),
+      entrance: unit.entrance,
+      size: safeString(unit.size),
+      rooms: safeString(unit.rooms),
+      constructionYear: safeString(unit.constructionYear),
+      coOwnershipShare: 'coOwnershipShare' in unit ? safeString(unit.coOwnershipShare) : '',
+    })),
+  })),
+})
 
 export const usePropertyForm = (initialDraftId?: string) => {
   const initialFormState: FormState = {
@@ -141,51 +189,28 @@ export const usePropertyForm = (initialDraftId?: string) => {
     buildings: [emptyBuilding()],
   }
   const [form, setForm] = useState<FormState>(initialFormState)
-  const [draftId, setDraftId] = useState<string | null>(null)
-  const [isDraftActive, setIsDraftActive] = useState(false)
-  const [pendingDrafts, setPendingDrafts] = useState<DraftEntry[]>([])
+  const [propertyId, setPropertyId] = useState<string | null>(null)
 
-  const { readDrafts, saveDraft, clearDraft } = useDraft()
-  const { addProperty } = useProperties()
+  const { properties, upsertProperty, removeProperty } = useProperties()
   const router = useRouter()
 
   useEffect(() => {
-    const drafts = readDrafts()
-    if (initialDraftId) {
-      const target = drafts.find((draft) => draft.id === initialDraftId)
-      if (target) {
-        setForm(target.form)
-        setDraftId(initialDraftId)
-        setIsDraftActive(true)
-        setPendingDrafts(drafts.filter((draft) => draft.id !== initialDraftId))
-        return
-      }
+    if (!initialDraftId || propertyId) return
+    const draft = properties.find((property) => property.id === initialDraftId && property.isDraft)
+    if (draft) {
+      setForm(formFromProperty(draft))
+      setPropertyId(initialDraftId)
     }
-    setPendingDrafts(drafts)
-  }, [])
+  }, [properties])
 
   useEffect(() => {
-    if (isDraftActive && draftId) saveDraft(draftId, form)
-  }, [form, isDraftActive, draftId])
+    if (!propertyId) return
+    upsertProperty(buildProperty(form, propertyId, true))
+  }, [form, propertyId])
 
   const activateDraft = () => {
-    const newDraftId = crypto.randomUUID()
-    setDraftId(newDraftId)
-    setIsDraftActive(true)
-  }
-
-  const restoreDraft = (id: string) => {
-    const entry = pendingDrafts.find((draft) => draft.id === id)
-    if (!entry) return
-    setForm(entry.form)
-    setDraftId(id)
-    setIsDraftActive(true)
-    setPendingDrafts((previous) => previous.filter((draft) => draft.id !== id))
-  }
-
-  const discardDraft = (id: string) => {
-    clearDraft(id)
-    setPendingDrafts((previous) => previous.filter((draft) => draft.id !== id))
+    if (propertyId) return
+    setPropertyId(makeId('prop'))
   }
 
   const setManagementType = (managementType: ManagementType) =>
@@ -286,9 +311,7 @@ export const usePropertyForm = (initialDraftId?: string) => {
     }))
 
   const submit = () => {
-    const property = buildProperty(form)
-    addProperty(property)
-    if (draftId) clearDraft(draftId)
+    upsertProperty(buildProperty(form, propertyId!, false))
     router.push('/')
   }
 
@@ -306,9 +329,7 @@ export const usePropertyForm = (initialDraftId?: string) => {
     removeUnit,
     updateUnit,
     submit,
-    pendingDrafts,
     activateDraft,
-    restoreDraft,
-    discardDraft,
+    removeProperty,
   }
 }
