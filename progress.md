@@ -193,3 +193,39 @@ Simple, composable. `label` is a display text prop — no `<label>` HTML element
 `HelpSection` handles the standard case. `HelpTrigger` remains as the escape hatch for non-standard placements (e.g., a `?` inside a table header, or mid-sentence in a description). The two are complementary, not competing.
 
 Key constraint: `HelpSection` must not render a `<label>` HTML element. A `<label>` is a form semantic that associates text with a specific input — it's not a display wrapper. The component name contains "Section," not "Label," for this reason. Callers retain full control over their form element associations.
+
+---
+
+## ADR-005: Testing Strategy — Sequencing and Scope
+
+### Context
+
+Tests were introduced after the DDD restructure, not at the start of the project. This was deliberate, not an oversight.
+
+### Why tests were written after DDD, not upfront
+
+The initial build established domain boundaries: property types, form state, wizard steps. Writing tests during this phase would have anchored mocks and import paths to the flat structure (`@/hooks/usePropertyForm`, `@/components/HelpSection`, etc.). When the DDD restructure moved those modules to `@/domains/propertyCreation/hooks/usePropertyForm`, every mock path would have needed updating alongside the production code. Tests written against an unstable structure become friction, not safety — they break during refactoring even when behaviour hasn't changed.
+
+The correct sequencing was: establish stable module boundaries first, then write tests that target those boundaries. The `domains/` layout is the stable surface. Mocks now point at paths that won't move again without a deliberate architectural decision.
+
+### Framework: Vitest over Jest
+
+Vitest is the Next.js 16 recommended test runner (per `node_modules/next/dist/docs/01-app/02-guides/testing/vitest.md`). It supports ESM natively — no Babel transform needed, no `next/jest` wrapper, no module resolution shims. Path alias resolution comes from `resolve.tsconfigPaths: true`, reading directly from `tsconfig.json`. Lower config surface, faster execution.
+
+### What is tested and why
+
+Tests target logic that catches real bugs:
+
+- **Hook state transitions** (`usePropertyForm`): the form is the core of the creation domain. `removeBuilding`, `toggleSecondAddress`, `updateAddress`, and `updateUnit` all contain targeting logic — operate on the wrong building or unit and data is silently corrupted. These are the most valuable tests in the suite.
+- **Conditional rendering** (`BuildingForm`, `StepReview`): the WEG/MV fork is the central structural distinction of the data model. A regression here — MEA field visible for MV, or hidden for WEG — would violate the discriminated union invariant at the UI level.
+- **Form validation gating** (`StepProperty`): the `canProceed` predicate controls whether the user can advance. A regression here blocks the entire creation flow or allows submitting with missing required fields.
+
+### What is not tested and why
+
+- **Trivial setters** (`setName`, `setManagerId`, `setAccountantId`): each is a one-line state update with no branching. A broken setter would surface immediately in manual use and can't silently produce invalid data.
+- **Pure display with no branching** (`StepBuildings` navigation buttons, `StepReview` address formatting): these render fixed markup from props. No conditional logic, no state — nothing to test beyond "it rendered."
+- **Simple prop-passing**: testing that a component forwards a prop to a child component tests the framework, not the application.
+
+### Bonus fix surfaced by tests
+
+The `removeBuilding` hook function had no guard against removing the last building. The UI enforced this via a `canRemove={buildings.length > 1}` prop, but the hook itself would produce an empty buildings array if called directly. The test exposed this mismatch — the invariant belonged in the hook, not silently delegated to the consumer. The guard was added to `usePropertyForm` as a result.
