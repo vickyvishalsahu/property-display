@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useProperties } from '@/domains/shared/hooks/useProperties'
 import { useDraft } from '@/domains/propertyCreation/hooks/useDraft'
+import type { DraftEntry } from '@/domains/propertyCreation/hooks/useDraft'
 import type { ManagementType, UnitType, Address, WEGProperty, MVProperty, WEGUnit, MVUnit } from '@/domains/shared/types/property'
 
 export type FormAddress = {
@@ -131,7 +132,7 @@ const buildProperty = (form: FormState): WEGProperty | MVProperty => {
   }
 }
 
-export const usePropertyForm = () => {
+export const usePropertyForm = (initialDraftId?: string) => {
   const initialFormState: FormState = {
     managementType: null,
     name: '',
@@ -140,34 +141,51 @@ export const usePropertyForm = () => {
     buildings: [emptyBuilding()],
   }
   const [form, setForm] = useState<FormState>(initialFormState)
+  const [draftId, setDraftId] = useState<string | null>(null)
   const [isDraftActive, setIsDraftActive] = useState(false)
-  const [pendingDraft, setPendingDraft] = useState<FormState | null>(null)
+  const [pendingDrafts, setPendingDrafts] = useState<DraftEntry[]>([])
 
-  const { readDraft, saveDraft, clearDraft } = useDraft()
+  const { readDrafts, saveDraft, clearDraft } = useDraft()
   const { addProperty } = useProperties()
   const router = useRouter()
 
   useEffect(() => {
-    const draft = readDraft()
-    if (draft) setPendingDraft(draft)
+    const drafts = readDrafts()
+    if (initialDraftId) {
+      const target = drafts.find((draft) => draft.id === initialDraftId)
+      if (target) {
+        setForm(target.form)
+        setDraftId(initialDraftId)
+        setIsDraftActive(true)
+        setPendingDrafts(drafts.filter((draft) => draft.id !== initialDraftId))
+        return
+      }
+    }
+    setPendingDrafts(drafts)
   }, [])
 
   useEffect(() => {
-    if (isDraftActive) saveDraft(form)
-  }, [form, isDraftActive])
+    if (isDraftActive && draftId) saveDraft(draftId, form)
+  }, [form, isDraftActive, draftId])
 
-  const activateDraft = () => setIsDraftActive(true)
-
-  const restoreDraft = () => {
-    if (!pendingDraft) return
-    setForm(pendingDraft)
+  const activateDraft = () => {
+    const newDraftId = crypto.randomUUID()
+    setDraftId(newDraftId)
     setIsDraftActive(true)
-    setPendingDraft(null)
   }
 
-  const discardDraft = () => {
-    clearDraft()
-    setPendingDraft(null)
+  const restoreDraft = (id: string) => {
+    const entry = pendingDrafts.find((draft) => draft.id === id)
+    if (!entry) return
+    setForm(entry.form)
+    setDraftId(id)
+    setIsDraftActive(true)
+    setPendingDrafts((previous) => previous.filter((draft) => draft.id !== id))
+  }
+
+  const discardDraft = (id: string) => {
+    clearDraft(id)
+    setPendingDrafts((previous) => previous.filter((draft) => draft.id !== id))
   }
 
   const setManagementType = (managementType: ManagementType) =>
@@ -270,7 +288,7 @@ export const usePropertyForm = () => {
   const submit = () => {
     const property = buildProperty(form)
     addProperty(property)
-    clearDraft()
+    if (draftId) clearDraft(draftId)
     router.push('/')
   }
 
@@ -288,7 +306,7 @@ export const usePropertyForm = () => {
     removeUnit,
     updateUnit,
     submit,
-    pendingDraft,
+    pendingDrafts,
     activateDraft,
     restoreDraft,
     discardDraft,

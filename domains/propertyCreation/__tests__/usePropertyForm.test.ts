@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
 import { usePropertyForm } from '@/domains/propertyCreation/hooks/usePropertyForm'
+import type { DraftEntry } from '@/domains/propertyCreation/hooks/useDraft'
 
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: vi.fn() }),
@@ -154,80 +155,127 @@ describe('usePropertyForm', () => {
   })
 
   describe('draft behaviour', () => {
-    const storedDraft = {
-      managementType: 'WEG' as const,
-      name: 'Togostraße EG',
-      managerId: 'mgr-1',
-      accountantId: 'acc-1',
-      buildings: [],
-    }
+    const DRAFTS_KEY = 'buena_property_drafts'
 
-    it('pendingDraft is null on mount when localStorage is empty', async () => {
-      const { result } = renderHook(() => usePropertyForm())
-      await act(async () => {})
-      expect(result.current.pendingDraft).toBeNull()
+    const makeDraftEntry = (id: string, name: string): DraftEntry => ({
+      id,
+      savedAt: Date.now(),
+      form: { managementType: 'WEG', name, managerId: 'mgr-1', accountantId: 'acc-1', buildings: [] },
     })
 
-    it('pendingDraft is set on mount when localStorage has a valid draft', async () => {
-      localStorage.setItem('buena_property_draft', JSON.stringify(storedDraft))
+    const seedDrafts = (entries: DraftEntry[]) => {
+      localStorage.setItem(DRAFTS_KEY, JSON.stringify(entries))
+    }
+
+    const readDraftsFromStorage = (): DraftEntry[] => {
+      const stored = localStorage.getItem(DRAFTS_KEY)
+      return stored ? JSON.parse(stored) : []
+    }
+
+    it('pendingDrafts is [] on mount when localStorage is empty', async () => {
       const { result } = renderHook(() => usePropertyForm())
       await act(async () => {})
-      expect(result.current.pendingDraft).toEqual(storedDraft)
+      expect(result.current.pendingDrafts).toEqual([])
+    })
+
+    it('pendingDrafts contains all stored drafts on mount', async () => {
+      const entries = [makeDraftEntry('id-1', 'Draft A'), makeDraftEntry('id-2', 'Draft B')]
+      seedDrafts(entries)
+      const { result } = renderHook(() => usePropertyForm())
+      await act(async () => {})
+      expect(result.current.pendingDrafts).toHaveLength(2)
     })
 
     it('does not save to localStorage before activateDraft is called', () => {
       const { result } = renderHook(() => usePropertyForm())
       act(() => { result.current.setName('Test') })
-      expect(localStorage.getItem('buena_property_draft')).toBeNull()
+      expect(readDraftsFromStorage()).toHaveLength(0)
     })
 
-    it('saves to localStorage immediately when activateDraft is called', async () => {
+    it('saves a new draft entry to localStorage when activateDraft is called', async () => {
       const { result } = renderHook(() => usePropertyForm())
       act(() => { result.current.setName('Test Property') })
       await act(async () => { result.current.activateDraft() })
-      expect(localStorage.getItem('buena_property_draft')).not.toBeNull()
+      expect(readDraftsFromStorage()).toHaveLength(1)
+      expect(readDraftsFromStorage()[0].form.name).toBe('Test Property')
     })
 
-    it('saves updated form to localStorage on every change after activation', async () => {
+    it('saves updated form to the same draft entry on every change after activation', async () => {
       const { result } = renderHook(() => usePropertyForm())
       await act(async () => { result.current.activateDraft() })
       act(() => { result.current.setName('Updated Name') })
-      const saved = JSON.parse(localStorage.getItem('buena_property_draft')!)
-      expect(saved.name).toBe('Updated Name')
+      const drafts = readDraftsFromStorage()
+      expect(drafts).toHaveLength(1)
+      expect(drafts[0].form.name).toBe('Updated Name')
     })
 
-    it('restoreDraft replaces form state with the stored draft', async () => {
-      localStorage.setItem('buena_property_draft', JSON.stringify(storedDraft))
+    it('restoreDraft(id) replaces form state with the matching draft', async () => {
+      const entry = makeDraftEntry('id-1', 'Togostraße EG')
+      seedDrafts([entry])
       const { result } = renderHook(() => usePropertyForm())
       await act(async () => {})
-      act(() => { result.current.restoreDraft() })
+      act(() => { result.current.restoreDraft('id-1') })
       expect(result.current.form.name).toBe('Togostraße EG')
       expect(result.current.form.managementType).toBe('WEG')
     })
 
-    it('restoreDraft clears pendingDraft from memory', async () => {
-      localStorage.setItem('buena_property_draft', JSON.stringify(storedDraft))
+    it('restoreDraft(id) removes the restored draft from pendingDrafts', async () => {
+      const entries = [makeDraftEntry('id-1', 'Draft A'), makeDraftEntry('id-2', 'Draft B')]
+      seedDrafts(entries)
       const { result } = renderHook(() => usePropertyForm())
       await act(async () => {})
-      act(() => { result.current.restoreDraft() })
-      expect(result.current.pendingDraft).toBeNull()
+      act(() => { result.current.restoreDraft('id-1') })
+      expect(result.current.pendingDrafts).toHaveLength(1)
+      expect(result.current.pendingDrafts[0].id).toBe('id-2')
     })
 
-    it('discardDraft clears localStorage and sets pendingDraft to null', async () => {
-      localStorage.setItem('buena_property_draft', JSON.stringify(storedDraft))
+    it('restoreDraft(id) continues saving to the same draft slot', async () => {
+      const entry = makeDraftEntry('id-1', 'Original Name')
+      seedDrafts([entry])
       const { result } = renderHook(() => usePropertyForm())
       await act(async () => {})
-      act(() => { result.current.discardDraft() })
-      expect(localStorage.getItem('buena_property_draft')).toBeNull()
-      expect(result.current.pendingDraft).toBeNull()
+      act(() => { result.current.restoreDraft('id-1') })
+      act(() => { result.current.setName('Modified Name') })
+      const drafts = readDraftsFromStorage()
+      expect(drafts).toHaveLength(1)
+      expect(drafts[0].id).toBe('id-1')
+      expect(drafts[0].form.name).toBe('Modified Name')
     })
 
-    it('submit clears draft from localStorage', async () => {
+    it('discardDraft(id) removes only the matching entry from localStorage', async () => {
+      const entries = [makeDraftEntry('id-1', 'Draft A'), makeDraftEntry('id-2', 'Draft B')]
+      seedDrafts(entries)
+      const { result } = renderHook(() => usePropertyForm())
+      await act(async () => {})
+      act(() => { result.current.discardDraft('id-1') })
+      const drafts = readDraftsFromStorage()
+      expect(drafts).toHaveLength(1)
+      expect(drafts[0].id).toBe('id-2')
+      expect(result.current.pendingDrafts).toHaveLength(1)
+    })
+
+    it('submit clears only the current session draft from localStorage', async () => {
+      const otherEntry = makeDraftEntry('other-id', 'Other Draft')
+      seedDrafts([otherEntry])
       const { result } = renderHook(() => usePropertyForm())
       await act(async () => { result.current.activateDraft() })
       act(() => { result.current.setManagementType('MV') })
       act(() => { result.current.submit() })
-      expect(localStorage.getItem('buena_property_draft')).toBeNull()
+      const remaining = readDraftsFromStorage()
+      expect(remaining).toHaveLength(1)
+      expect(remaining[0].id).toBe('other-id')
+    })
+
+    it('auto-restores draft and activates saving when initialDraftId matches', async () => {
+      const entry = makeDraftEntry('id-auto', 'Auto Restored')
+      seedDrafts([entry])
+      const { result } = renderHook(() => usePropertyForm('id-auto'))
+      await act(async () => {})
+      expect(result.current.form.name).toBe('Auto Restored')
+      act(() => { result.current.setName('Modified After Restore') })
+      const drafts = readDraftsFromStorage()
+      expect(drafts[0].id).toBe('id-auto')
+      expect(drafts[0].form.name).toBe('Modified After Restore')
     })
   })
 })
