@@ -10,18 +10,29 @@ export const useProperties = () => {
 
   useEffect(() => {
     const stored = localStorage.getItem(STORAGE_KEY)
-    if (stored) {
-      setProperties(JSON.parse(stored))
-    }
+    if (stored) setProperties(JSON.parse(stored))
   }, [])
 
-  const addProperty = (property: Property) => {
-    setProperties((previousProperties) => {
-      const updated = [property, ...previousProperties]
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
-      return updated
+  const persist = (updated: Property[]) => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
+    return updated
+  }
+
+  const upsertProperty = (property: Property) => {
+    setProperties((previous) => {
+      const exists = previous.some((existingProperty) => existingProperty.id === property.id)
+      const updated = exists
+        ? previous.map((existingProperty) =>
+            existingProperty.id === property.id ? property : existingProperty
+          )
+        : [property, ...previous]
+      return persist(updated)
     })
   }
 
-  return { properties, addProperty }
+  const removeProperty = (id: string) => {
+    setProperties((previous) => persist(previous.filter((property) => property.id !== id)))
+  }
+
+  return { properties, upsertProperty, removeProperty }
 }

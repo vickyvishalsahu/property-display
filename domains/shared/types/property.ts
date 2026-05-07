@@ -36,6 +36,7 @@ type BaseProperty = {
   name: string
   managerId: string
   accountantId: string
+  isDraft: boolean
 }
 
 export type WEGProperty = BaseProperty & {
