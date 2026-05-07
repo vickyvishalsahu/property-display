@@ -9,7 +9,8 @@ A focused internal tool for property managers. Built as a case study MVP with tw
 Buena acquires traditional German property management companies (*Hausverwaltungen*) and runs them on a unified platform. This MVP demonstrates the core loop:
 
 1. **Dashboard** — view all properties at a glance (name, type, buildings, units, assigned manager)
-2. **Add Property** — register a new property into the system via a guided flow
+2. **Add Property** — register a new property via a guided multi-step flow
+3. **PDF Import** — upload a property document (Teilungserklärung, Mietvertrag, etc.) and have the details extracted automatically via AI
 
 No accounting, no tenant communications, no compliance tooling — just the essential: get a property in, see it immediately.
 
@@ -24,6 +25,9 @@ No accounting, no tenant communications, no compliance tooling — just the esse
 | Styling | Tailwind CSS 4 |
 | Runtime | React 19 |
 | Package manager | pnpm |
+| AI extraction | Groq (`llama-3.3-70b-versatile`) |
+| PDF parsing | pdfjs-dist (client-side) |
+| Address lookup | Google Maps Places API |
 
 ---
 
@@ -31,20 +35,59 @@ No accounting, no tenant communications, no compliance tooling — just the esse
 
 ```
 app/
-  page.tsx                  # Dashboard — property portfolio grid
-  layout.tsx                # Root layout with nav
-  properties/new/page.tsx   # Add property flow
-constants/
-  propertyTypes.ts          # Management type labels (WEG, MV)
-  unitTypes.ts              # Unit type definitions
-hooks/
-  useProperties.ts          # Property data hook
-mock/
-  properties.ts             # Seed data — mock property portfolio
-  staff.ts                  # Seed data — mock staff members
-types/
-  property.ts               # Core domain types (Property, Building, Unit, Address)
-  staff.ts                  # Staff types
+  page.tsx                          # Dashboard — property portfolio grid
+  layout.tsx                        # Root layout with nav + title template
+  _components/
+    DashboardPage.tsx               # Dashboard client component
+  properties/
+    layout.tsx                      # Properties section layout
+    new/page.tsx                    # Add property — method select + step 1
+    [id]/page.tsx                   # Edit property — step 1
+    [id]/buildings/page.tsx         # Step 2 — buildings & units
+    [id]/review/page.tsx            # Step 3 — review & publish
+  api/
+    extract-property/route.ts       # POST — PDF text → AI → PropertyImport JSON
+
+domains/
+  shared/
+    types/
+      property.ts                   # Core domain types (Property, Building, Unit, Address)
+      propertyImport.ts             # Import types (partial data from PDF extraction)
+      staff.ts                      # Staff types
+    constants/
+      propertyTypes.ts              # Management type labels (WEG, MV)
+      helpContent.ts                # Contextual help copy
+    hooks/
+      useProperties.ts              # Property CRUD hook (localStorage)
+      usePlaces.ts                  # Google Maps Places autocomplete hook
+    mock/
+      properties.ts                 # Seed data — mock property portfolio
+      staff.ts                      # Seed data — mock staff members
+    components/
+      HelpPanel.tsx                 # Slide-in help panel
+      HelpSection.tsx               # Section wrapper with help trigger
+      HelpTrigger.tsx               # ? button that opens the panel
+    context/
+      HelpPanelContext.tsx          # Help panel open/close state
+    providers/
+      GoogleMapsProvider.tsx        # Google Maps JS API loader
+  propertyCreation/
+    components/
+      StepProperty.tsx              # Step 1 — name, type, manager
+      StepBuildings.tsx             # Step 2 — buildings & units
+      StepReview.tsx                # Step 3 — review & confirm
+      BuildingForm.tsx              # Per-building form with unit rows
+      AddressAutocomplete.tsx       # Address search input (Places API)
+      PropertyStepper.tsx           # Step indicator
+      PdfImport.tsx                 # PDF upload UI with loading/error states
+      DraftCard.tsx                 # Draft property card on dashboard
+      PropertyNotFound.tsx          # 404 fallback for unknown property IDs
+    hooks/
+      usePropertyForm.ts            # Form state + draft/publish logic
+      usePropertyExtraction.ts      # PDF text → API → parsed import data
+      formFromImport.ts             # PropertyImport → Partial<FormState> mapper
+    constants/
+      unitTypes.ts                  # Valid unit types + labels
 ```
 
 ---
@@ -53,16 +96,14 @@ types/
 
 Properties are typed by management model:
 
-- **WEG** (*Wohnungseigentümergemeinschaft*) — condominium association; units carry a co-ownership share
+- **WEG** (*Wohnungseigentümergemeinschaft*) — condominium association; units carry a co-ownership share (MEA)
 - **MV** (*Mietverwaltung*) — rental management; units are standard rental units
-
-Each property has one or more buildings, each building has one or more addresses and a list of units.
 
 ```
 Property (WEG | MV)
   └── buildings[]
-        ├── addresses[]   (street, number, postal code, city)
-        └── units[]       (type, floor, entrance, size, rooms)
+        ├── addresses[]   (street, number, postal code, city — corner buildings can have two)
+        └── units[]       (number, type, floor, entrance, size, rooms, constructionYear, coOwnershipShare)
 ```
 
 ---
@@ -74,6 +115,13 @@ pnpm install
 pnpm dev
 ```
 
+Copy `.env.example` to `.env.local` and fill in the required keys:
+
+```bash
+NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=   # Google Maps JS API key (Places API enabled)
+GROQ_API_KEY=                      # Groq API key for AI extraction
+```
+
 App runs at `http://localhost:3000`.
 
 ---
@@ -83,7 +131,21 @@ App runs at `http://localhost:3000`.
 | Route | Description |
 |-------|-------------|
 | `/` | Property dashboard |
-| `/properties/new` | Add a new property |
+| `/properties/new` | Add a new property (manual or PDF import) |
+| `/properties/[id]` | Edit property — step 1 |
+| `/properties/[id]/buildings` | Edit property — step 2 (buildings & units) |
+| `/properties/[id]/review` | Edit property — step 3 (review & publish) |
+
+---
+
+## PDF import flow
+
+1. User uploads a PDF on the `/properties/new` method selection screen
+2. Text is extracted client-side with `pdfjs-dist`
+3. Text is sent to `POST /api/extract-property`
+4. The API calls Groq with a German real estate domain prompt (JSON mode, up to 2 retries)
+5. The validated `PropertyImport` is returned and used to pre-fill the wizard
+6. User reviews the extracted data, fills any gaps, and publishes
 
 ---
 
