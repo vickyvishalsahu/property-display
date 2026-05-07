@@ -131,13 +131,14 @@ const buildProperty = (form: FormState): WEGProperty | MVProperty => {
 }
 
 export const usePropertyForm = () => {
-  const [form, setForm] = useState<FormState>({
+  const initialFormState: FormState = {
     managementType: null,
     name: '',
     managerId: '',
     accountantId: '',
     buildings: [emptyBuilding()],
-  })
+  }
+  const [form, setForm] = useState<FormState>(initialFormState)
 
   const { addProperty } = useProperties()
   const router = useRouter()
