@@ -319,6 +319,7 @@ export const usePropertyForm = (initialPropertyId?: string) => {
 
   return {
     form,
+    propertyId,
     setManagementType,
     setName,
     setManagerId,

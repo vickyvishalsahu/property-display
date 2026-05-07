@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { usePropertyForm } from '@/domains/propertyCreation/hooks/usePropertyForm'
 import { StepProperty } from '@/domains/propertyCreation/components/StepProperty'
 import { StepBuildings } from '@/domains/propertyCreation/components/StepBuildings'
@@ -9,9 +10,11 @@ import { StepReview } from '@/domains/propertyCreation/components/StepReview'
 const STEPS = ['Property', 'Buildings', 'Review']
 
 const NewProperty = () => {
+  const router = useRouter()
   const [currentStep, setCurrentStep] = useState(0)
   const {
     form,
+    propertyId,
     setManagementType,
     setName,
     setManagerId,
@@ -30,9 +33,12 @@ const NewProperty = () => {
   const goNext = () => setCurrentStep((previousStep) => Math.min(previousStep + 1, STEPS.length - 1))
   const goBack = () => setCurrentStep((previousStep) => Math.max(previousStep - 1, 0))
 
+  useEffect(() => {
+    if (propertyId) router.push(`/properties/${propertyId}`)
+  }, [propertyId])
+
   const handlePropertyStepNext = () => {
     activateDraft()
-    goNext()
   }
 
   const renderStepper = () => (
