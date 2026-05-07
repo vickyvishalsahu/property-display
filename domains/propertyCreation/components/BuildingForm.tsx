@@ -80,7 +80,6 @@ export const BuildingForm = ({
       const numberError = submitted && unit.number.trim() === ''
       const typeError = submitted && unit.type === ''
       const floorError = submitted && unit.floor.trim() === ''
-      const entranceError = submitted && unit.entrance.trim() === ''
       const sizeError = submitted && unit.size.trim() === ''
       const roomsError = submitted && unit.rooms.trim() === ''
       const constructionYearError = submitted && unit.constructionYear.trim() === ''
@@ -143,9 +142,8 @@ export const BuildingForm = ({
                 type="text"
                 value={unit.entrance}
                 onChange={(event) => onUpdateUnit(unit.id, 'entrance', event.target.value)}
-                className={fieldClass(entranceError)}
+                className={fieldClass(false)}
               />
-              {entranceError && renderFieldError()}
             </div>
             <div>
               <label className="block text-xs text-gray-500 mb-1">Size (m²)</label>

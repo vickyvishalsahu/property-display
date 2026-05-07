@@ -42,7 +42,6 @@ export const StepBuildings = ({
     unit.number.trim() !== '' &&
     unit.type !== '' &&
     unit.floor.trim() !== '' &&
-    unit.entrance.trim() !== '' &&
     unit.size.trim() !== '' &&
     unit.rooms.trim() !== '' &&
     unit.constructionYear.trim() !== '' &&
