@@ -27,14 +27,18 @@ const inputClass =
 export const AddressAutocomplete = ({ address, onSelect }: Props) => {
   const { fetchPredictions, fetchAddressDetails, attributionRef } = usePlaces()
 
-  const [query, setQuery] = useState('')
+  const [query, setQuery] = useState(() => formatAddress(address))
   const [predictions, setPredictions] = useState<google.maps.places.AutocompletePrediction[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
+  const [showNumberHint, setShowNumberHint] = useState(false)
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const containerRef = useRef<HTMLDivElement | null>(null)
+  const inputRef = useRef<HTMLInputElement | null>(null)
 
-  const displayValue = query || formatAddress(address)
+  useEffect(() => {
+    setQuery(formatAddress(address))
+  }, [address.streetName, address.streetNumber, address.postalCode, address.city])
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -48,6 +52,7 @@ export const AddressAutocomplete = ({ address, onSelect }: Props) => {
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value
+    if (showNumberHint) setShowNumberHint(false)
     setQuery(value)
     setIsOpen(true)
 
@@ -78,13 +83,28 @@ export const AddressAutocomplete = ({ address, onSelect }: Props) => {
     const parsed = getAddressObject(placeResult)
     if (!parsed) return
 
-    setQuery('')
+    if (!parsed.streetNumber) {
+      setQuery(parsed.streetName + ' ')
+      setShowNumberHint(true)
+      inputRef.current?.focus()
+      return
+    }
+
+    setShowNumberHint(false)
     onSelect(parsed)
   }
 
   const handleFocus = () => {
     if (predictions.length > 0) setIsOpen(true)
-    setQuery('')
+  }
+
+  const renderHint = () => {
+    if (!showNumberHint) return null
+    return (
+      <p className="text-xs text-amber-600 mt-1.5">
+        No house number found — add it after the street name (e.g. Togostraße 75)
+      </p>
+    )
   }
 
   const renderDropdown = () => {
@@ -120,15 +140,17 @@ export const AddressAutocomplete = ({ address, onSelect }: Props) => {
   return (
     <div ref={containerRef} className="relative">
       <input
+        ref={inputRef}
         type="text"
-        value={displayValue}
+        value={query}
         onChange={handleInputChange}
         onFocus={handleFocus}
-        placeholder="Search address…"
+        placeholder="e.g. Togostraße 75, Berlin"
         className={inputClass}
         autoComplete="off"
       />
       {renderDropdown()}
+      {renderHint()}
       <div ref={attributionRef} className="hidden" />
     </div>
   )

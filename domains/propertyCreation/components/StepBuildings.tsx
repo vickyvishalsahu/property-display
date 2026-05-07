@@ -32,9 +32,18 @@ export const StepBuildings = ({
 }: Props) => {
   const isWEG = managementType === 'WEG'
 
+  const isAddressComplete = (address: FormAddress) =>
+    address.streetName.trim() !== '' && address.streetNumber.trim() !== ''
+
+  const canProceed = buildings.every(
+    (building) =>
+      isAddressComplete(building.addresses[0]) &&
+      (building.addresses[1] === null || isAddressComplete(building.addresses[1]))
+  )
+
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault()
-    onNext()
+    if (canProceed) onNext()
   }
 
   const renderBuildings = () =>
@@ -76,7 +85,8 @@ export const StepBuildings = ({
         </button>
         <button
           type="submit"
-          className="bg-gray-900 text-white text-sm px-5 py-2.5 rounded-lg hover:bg-gray-700 transition-colors"
+          disabled={!canProceed}
+          className="bg-gray-900 text-white text-sm px-5 py-2.5 rounded-lg hover:bg-gray-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
         >
           Next
         </button>
