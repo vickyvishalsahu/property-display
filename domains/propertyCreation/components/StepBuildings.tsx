@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { BuildingForm } from './BuildingForm'
 import type { FormBuilding, FormAddress, FormUnit } from '@/domains/propertyCreation/hooks/usePropertyForm'
 
@@ -30,20 +31,37 @@ export const StepBuildings = ({
   onBack,
   onNext,
 }: Props) => {
+  const [submitted, setSubmitted] = useState(false)
+
   const isWEG = managementType === 'WEG'
 
   const isAddressComplete = (address: FormAddress) =>
     address.streetName.trim() !== '' && address.streetNumber.trim() !== ''
 
+  const isUnitComplete = (unit: FormUnit) =>
+    unit.number.trim() !== '' &&
+    unit.type !== '' &&
+    unit.floor.trim() !== '' &&
+    unit.entrance.trim() !== '' &&
+    unit.size.trim() !== '' &&
+    unit.rooms.trim() !== '' &&
+    unit.constructionYear.trim() !== '' &&
+    (!isWEG || unit.coOwnershipShare.trim() !== '')
+
   const canProceed = buildings.every(
     (building) =>
       isAddressComplete(building.addresses[0]) &&
-      (building.addresses[1] === null || isAddressComplete(building.addresses[1]))
+      (building.addresses[1] === null || isAddressComplete(building.addresses[1])) &&
+      building.units.every(isUnitComplete)
   )
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault()
-    if (canProceed) onNext()
+    if (!canProceed) {
+      setSubmitted(true)
+      return
+    }
+    onNext()
   }
 
   const renderBuildings = () =>
@@ -53,6 +71,7 @@ export const StepBuildings = ({
         building={building}
         buildingIndex={buildingIndex}
         isWEG={isWEG}
+        submitted={submitted}
         canRemove={buildings.length > 1}
         onRemove={() => removeBuilding(building.id)}
         onToggleSecondAddress={() => toggleSecondAddress(building.id)}
@@ -64,7 +83,7 @@ export const StepBuildings = ({
     ))
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+    <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
       {renderBuildings()}
 
       <button
@@ -85,8 +104,7 @@ export const StepBuildings = ({
         </button>
         <button
           type="submit"
-          disabled={!canProceed}
-          className="bg-gray-900 text-white text-sm px-5 py-2.5 rounded-lg hover:bg-gray-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          className="bg-gray-900 text-white text-sm px-5 py-2.5 rounded-lg hover:bg-gray-700 transition-colors"
         >
           Next
         </button>

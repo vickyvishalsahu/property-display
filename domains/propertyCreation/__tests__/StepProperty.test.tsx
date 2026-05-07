@@ -41,25 +41,25 @@ const renderStep = (form: FormState, overrides: Partial<Parameters<typeof StepPr
 }
 
 describe('StepProperty', () => {
-  describe('Next button gating', () => {
-    it('is disabled when managementType is null', () => {
+  describe('inline validation on submit', () => {
+    it('shows errors for all fields when Next is clicked on an empty form', async () => {
       renderStep(emptyForm)
-      expect(screen.getByRole('button', { name: 'Next' })).toBeDisabled()
+      await userEvent.click(screen.getByRole('button', { name: 'Next' }))
+      expect(screen.getByText('Select a management type to continue')).toBeInTheDocument()
+      expect(screen.getAllByText('Required').length).toBeGreaterThanOrEqual(3)
     })
 
-    it('is disabled when name is empty', () => {
-      renderStep({ ...emptyForm, managementType: 'WEG' })
-      expect(screen.getByRole('button', { name: 'Next' })).toBeDisabled()
+    it('shows error only for missing fields when some are filled', async () => {
+      renderStep({ ...emptyForm, managementType: 'WEG', name: 'Test', managerId: MOCK_MANAGERS[0].id })
+      await userEvent.click(screen.getByRole('button', { name: 'Next' }))
+      expect(screen.queryByText('Select a management type to continue')).not.toBeInTheDocument()
+      expect(screen.getAllByText('Required')).toHaveLength(1)
     })
 
-    it('is disabled when managerId is missing', () => {
-      renderStep({ ...emptyForm, managementType: 'WEG', name: 'Test', accountantId: MOCK_ACCOUNTANTS[0].id })
-      expect(screen.getByRole('button', { name: 'Next' })).toBeDisabled()
-    })
-
-    it('is enabled when all required fields are filled', () => {
-      renderStep(fullForm)
-      expect(screen.getByRole('button', { name: 'Next' })).not.toBeDisabled()
+    it('does not show errors before Next is clicked', () => {
+      renderStep(emptyForm)
+      expect(screen.queryByText('Select a management type to continue')).not.toBeInTheDocument()
+      expect(screen.queryByText('Required')).not.toBeInTheDocument()
     })
   })
 
