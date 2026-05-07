@@ -1,32 +1,55 @@
 import type { FormState } from '@/domains/propertyCreation/hooks/usePropertyForm'
 
-const DRAFT_KEY = 'buena_property_draft'
+export type DraftEntry = {
+  id: string
+  savedAt: number
+  form: FormState
+}
+
+const DRAFTS_KEY = 'buena_property_drafts'
 
 export const useDraft = () => {
-  const readDraft = (): FormState | null => {
+  const readDrafts = (): DraftEntry[] => {
     try {
-      const stored = localStorage.getItem(DRAFT_KEY)
-      return stored ? (JSON.parse(stored) as FormState) : null
+      const stored = localStorage.getItem(DRAFTS_KEY)
+      return stored ? (JSON.parse(stored) as DraftEntry[]) : []
     } catch {
-      return null
+      return []
     }
   }
 
-  const saveDraft = (form: FormState): void => {
+  const saveDraft = (id: string, form: FormState): void => {
     try {
-      localStorage.setItem(DRAFT_KEY, JSON.stringify(form))
+      const drafts = readDrafts()
+      const existingIndex = drafts.findIndex((draft) => draft.id === id)
+      const entry: DraftEntry = { id, savedAt: Date.now(), form }
+      if (existingIndex >= 0) {
+        drafts[existingIndex] = entry
+      } else {
+        drafts.push(entry)
+      }
+      localStorage.setItem(DRAFTS_KEY, JSON.stringify(drafts))
     } catch {
       // localStorage unavailable (sandboxed iframe, storage quota exceeded)
     }
   }
 
-  const clearDraft = (): void => {
+  const clearDraft = (id: string): void => {
     try {
-      localStorage.removeItem(DRAFT_KEY)
+      const drafts = readDrafts().filter((draft) => draft.id !== id)
+      localStorage.setItem(DRAFTS_KEY, JSON.stringify(drafts))
     } catch {
       // localStorage unavailable
     }
   }
 
-  return { readDraft, saveDraft, clearDraft }
+  const clearAllDrafts = (): void => {
+    try {
+      localStorage.removeItem(DRAFTS_KEY)
+    } catch {
+      // localStorage unavailable
+    }
+  }
+
+  return { readDrafts, saveDraft, clearDraft, clearAllDrafts }
 }

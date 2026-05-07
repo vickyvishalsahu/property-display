@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest'
 import { useDraft } from '@/domains/propertyCreation/hooks/useDraft'
 import type { FormState } from '@/domains/propertyCreation/hooks/usePropertyForm'
 
-const minimalDraft: FormState = {
+const minimalForm: FormState = {
   managementType: 'WEG',
   name: 'Togostraße EG',
   managerId: 'mgr-1',
@@ -10,32 +10,76 @@ const minimalDraft: FormState = {
   buildings: [],
 }
 
+const DRAFTS_KEY = 'buena_property_drafts'
+
 describe('useDraft', () => {
   beforeEach(() => {
     localStorage.clear()
   })
 
-  it('readDraft returns null when localStorage is empty', () => {
-    const { readDraft } = useDraft()
-    expect(readDraft()).toBeNull()
+  describe('readDrafts', () => {
+    it('returns [] when localStorage is empty', () => {
+      const { readDrafts } = useDraft()
+      expect(readDrafts()).toEqual([])
+    })
+
+    it('returns parsed array when drafts exist', () => {
+      const entries = [{ id: 'abc', savedAt: 1000, form: minimalForm }]
+      localStorage.setItem(DRAFTS_KEY, JSON.stringify(entries))
+      const { readDrafts } = useDraft()
+      expect(readDrafts()).toEqual(entries)
+    })
   })
 
-  it('readDraft returns parsed FormState when draft exists', () => {
-    localStorage.setItem('buena_property_draft', JSON.stringify(minimalDraft))
-    const { readDraft } = useDraft()
-    expect(readDraft()).toEqual(minimalDraft)
+  describe('saveDraft', () => {
+    it('appends a new entry when id is new', () => {
+      const { saveDraft, readDrafts } = useDraft()
+      saveDraft('id-1', minimalForm)
+      const drafts = readDrafts()
+      expect(drafts).toHaveLength(1)
+      expect(drafts[0].id).toBe('id-1')
+      expect(drafts[0].form).toEqual(minimalForm)
+    })
+
+    it('upserts existing entry when id matches', () => {
+      const { saveDraft, readDrafts } = useDraft()
+      saveDraft('id-1', minimalForm)
+      const updated = { ...minimalForm, name: 'Updated Name' }
+      saveDraft('id-1', updated)
+      const drafts = readDrafts()
+      expect(drafts).toHaveLength(1)
+      expect(drafts[0].form.name).toBe('Updated Name')
+    })
+
+    it('updates savedAt on every save', () => {
+      const { saveDraft, readDrafts } = useDraft()
+      saveDraft('id-1', minimalForm)
+      const first = readDrafts()[0].savedAt
+      saveDraft('id-1', minimalForm)
+      const second = readDrafts()[0].savedAt
+      expect(second).toBeGreaterThanOrEqual(first)
+    })
   })
 
-  it('saveDraft writes serialized form to localStorage', () => {
-    const { saveDraft } = useDraft()
-    saveDraft(minimalDraft)
-    expect(localStorage.getItem('buena_property_draft')).toBe(JSON.stringify(minimalDraft))
+  describe('clearDraft', () => {
+    it('removes only the matching entry', () => {
+      const { saveDraft, clearDraft, readDrafts } = useDraft()
+      saveDraft('id-1', minimalForm)
+      saveDraft('id-2', minimalForm)
+      clearDraft('id-1')
+      const drafts = readDrafts()
+      expect(drafts).toHaveLength(1)
+      expect(drafts[0].id).toBe('id-2')
+    })
   })
 
-  it('clearDraft removes the draft key from localStorage', () => {
-    localStorage.setItem('buena_property_draft', JSON.stringify(minimalDraft))
-    const { clearDraft } = useDraft()
-    clearDraft()
-    expect(localStorage.getItem('buena_property_draft')).toBeNull()
+  describe('clearAllDrafts', () => {
+    it('empties the array', () => {
+      const { saveDraft, clearAllDrafts, readDrafts } = useDraft()
+      saveDraft('id-1', minimalForm)
+      saveDraft('id-2', minimalForm)
+      clearAllDrafts()
+      expect(readDrafts()).toEqual([])
+    })
   })
 })

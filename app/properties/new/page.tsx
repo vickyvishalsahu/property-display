@@ -34,7 +34,7 @@ const NewProperty = () => {
   const goNext = () => setCurrentStep((previousStep) => Math.min(previousStep + 1, STEPS.length - 1))
   const goBack = () => setCurrentStep((previousStep) => Math.max(previousStep - 1, 0))
 
-  const handleStep0Next = () => {
+  const handlePropertyStepNext = () => {
     activateDraft()
     goNext()
   }
@@ -73,7 +73,7 @@ const NewProperty = () => {
           setName={setName}
           setManagerId={setManagerId}
           setAccountantId={setAccountantId}
-          onNext={handleStep0Next}
+          onNext={handlePropertyStepNext}
         />
       )
     }
