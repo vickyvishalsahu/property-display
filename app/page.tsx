@@ -5,7 +5,6 @@ import { MOCK_PROPERTIES } from '@/domains/shared/mock/properties'
 import { ALL_MOCK_STAFF } from '@/domains/shared/mock/staff'
 import { MANAGEMENT_TYPE_LABELS } from '@/domains/shared/constants/propertyTypes'
 import { useProperties } from '@/domains/shared/hooks/useProperties'
-import { useDraftList } from '@/domains/propertyCreation/hooks/useDraftList'
 import { DraftCard } from '@/domains/propertyCreation/components/DraftCard'
 import type { Property } from '@/domains/shared/types/property'
 
@@ -59,10 +58,11 @@ const PropertyCard = ({ property }: { property: Property }) => {
 }
 
 const Dashboard = () => {
-  const { properties: userProperties } = useProperties()
-  const { drafts, discardDraft } = useDraftList()
+  const { properties: userProperties, removeProperty } = useProperties()
   const allProperties = [...MOCK_PROPERTIES, ...userProperties]
-  const totalCount = drafts.length + allProperties.length
+  const draftProperties = allProperties.filter((property) => property.isDraft)
+  const completeProperties = allProperties.filter((property) => !property.isDraft)
+  const totalCount = allProperties.length
 
   const renderEmptyState = () => (
     <div className="flex flex-col items-center justify-center py-24 text-center gap-4">
@@ -80,10 +80,10 @@ const Dashboard = () => {
 
   const renderProperties = () => (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-      {drafts.map((draft) => (
-        <DraftCard key={draft.id} draft={draft} onDiscard={discardDraft} />
+      {draftProperties.map((draft) => (
+        <DraftCard key={draft.id} draft={draft} onDiscard={removeProperty} />
       ))}
-      {allProperties.map((property) => (
+      {completeProperties.map((property) => (
         <PropertyCard key={property.id} property={property} />
       ))}
     </div>

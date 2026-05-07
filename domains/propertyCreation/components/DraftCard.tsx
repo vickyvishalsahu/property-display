@@ -1,30 +1,17 @@
 'use client'
 
 import Link from 'next/link'
-import type { DraftEntry } from '@/domains/propertyCreation/hooks/useDraft'
+import type { Property } from '@/domains/shared/types/property'
 import { MANAGEMENT_TYPE_LABELS } from '@/domains/shared/constants/propertyTypes'
 
 type Props = {
-  draft: DraftEntry
+  draft: Property
   onDiscard: (id: string) => void
 }
 
-const formatRelativeTime = (savedAt: number): string => {
-  const diffMs = Date.now() - savedAt
-  const diffMinutes = Math.floor(diffMs / 60_000)
-  if (diffMinutes < 1) return 'just now'
-  if (diffMinutes < 60) return `${diffMinutes}m ago`
-  const diffHours = Math.floor(diffMinutes / 60)
-  if (diffHours < 24) return `${diffHours}h ago`
-  const diffDays = Math.floor(diffHours / 24)
-  return `${diffDays}d ago`
-}
-
 export const DraftCard = ({ draft, onDiscard }: Props) => {
-  const displayName = draft.form.name || 'Untitled draft'
-  const managementLabel = draft.form.managementType
-    ? MANAGEMENT_TYPE_LABELS[draft.form.managementType]
-    : '—'
+  const displayName = draft.name || 'Untitled draft'
+  const managementLabel = MANAGEMENT_TYPE_LABELS[draft.managementType]
 
   return (
     <div className="bg-amber-50 border border-amber-200 rounded-xl p-5 flex flex-col gap-4">
@@ -36,10 +23,6 @@ export const DraftCard = ({ draft, onDiscard }: Props) => {
         <span className="shrink-0 text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-200 text-amber-900">
           Draft
         </span>
-      </div>
-
-      <div className="text-xs text-amber-700">
-        Last saved: {formatRelativeTime(draft.savedAt)}
       </div>
 
       <div className="flex items-center justify-between pt-1 border-t border-amber-200">
