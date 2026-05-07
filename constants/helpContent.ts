@@ -4,6 +4,10 @@ export type HelpEntry = {
 }
 
 export const HELP_CONTENT: Record<string, HelpEntry> = {
+  'management-type': {
+    title: 'Management type',
+    body: 'WEG (Wohnungseigentümergemeinschaft) is a co-ownership structure where multiple owners share a building — each unit carries a co-ownership share used for cost allocation. MV (Mietverwaltung) is rental management on behalf of an owner — no shared ownership, no co-ownership shares.',
+  },
   weg: {
     title: 'WEG — Wohnungseigentümergemeinschaft',
     body: 'A co-ownership structure where multiple owners each hold a unit and share common areas. Each unit carries a co-ownership share (MEA) used for cost allocation.',
