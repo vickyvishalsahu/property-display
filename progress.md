@@ -229,3 +229,89 @@ Tests target logic that catches real bugs:
 ### Bonus fix surfaced by tests
 
 The `removeBuilding` hook function had no guard against removing the last building. The UI enforced this via a `canRemove={buildings.length > 1}` prop, but the hook itself would produce an empty buildings array if called directly. The test exposed this mismatch — the invariant belonged in the hook, not silently delegated to the consumer. The guard was added to `usePropertyForm` as a result.
+
+---
+
+## ADR-006: URL-per-step Wizard Routing
+
+### Context
+
+The initial wizard implementation used a single page (`/properties/new`) with `useState(currentStep)` controlling which step was visible. All three steps — Property, Buildings, Review — rendered from the same component, with conditional logic selecting the active one. This worked but had structural problems: the URL never changed between steps, the browser back button didn't navigate between steps, and each step page imported all step components regardless of which was active.
+
+### Decision: each step is its own route
+
+- Step 1 (Property): `/properties/[id]`
+- Step 2 (Buildings): `/properties/[id]/buildings`
+- Step 3 (Review): `/properties/[id]/review`
+
+Navigation between steps is `router.push(nextRoute)`. The stepper UI (`PropertyStepper`) is a shared component that takes `activeStep: 0 | 1 | 2` and renders the visual progress indicator.
+
+### Tradeoffs
+
+- Browser back now correctly navigates between steps — no special handling needed
+- Each step page is independently code-split
+- The URL is shareable at any step — useful for debugging or bookmarking a draft mid-flow
+- Slightly more boilerplate: three pages instead of one, each calling `usePropertyForm(propertyId)` and mounting independently
+- `usePropertyForm` re-runs on each step navigation — acceptable cost since properties are stored locally and hydration is synchronous for mock data
+
+### On draft resume
+
+With URL-based steps, the dashboard's "Continue" link for a draft can deep-link into the correct step. `getDraftRoute(draft)` checks whether step 1 fields are complete — if yes, links to `/buildings` directly, skipping the already-completed step. The invariant: a draft only exists in storage after step 1 is valid (the `activateDraft` function only fires after `canProceed` is true), so in practice, every stored draft always routes to `/buildings`.
+
+---
+
+## ADR-007: Property Not-Found Guardrails
+
+### Context
+
+All three step pages call `usePropertyForm(propertyId)` which does a `properties.find()` to hydrate the form. If the property doesn't exist — invalid URL, deleted entry, or a stale link — the hook silently stays in its empty initial state. The user sees blank fields with no explanation.
+
+The additional complication: `useProperties` loads from localStorage asynchronously (one `useEffect` cycle after mount). During that window, even valid properties can't be found. The hook had no way to distinguish "still loading" from "genuinely not found."
+
+### Decision: isLoaded flag + isPropertyNotFound derived state
+
+`useProperties` exposes `isLoaded: boolean` — `false` on the initial render, `true` after the localStorage effect has run. `usePropertyForm` derives two signals from this:
+
+```ts
+const isLoading = !isLoaded
+const isPropertyNotFound = isLoaded && !!initialPropertyId && !propertyId
+```
+
+`!!initialPropertyId` guards against the new-property flow (no ID passed) producing a false not-found. `propertyId` (the hook's internal state) is only set when a matching property is found — so "loaded + ID passed + no match" is definitively not found.
+
+Pages render `null` during loading (the window is one React paint cycle — no visible flash) and show `<PropertyNotFound />` when not found. The component keeps the layout intact — nav, header visible — with a "Back to properties" link.
+
+### What was not done
+
+No redirect on not-found. A redirect loses the bad URL from the address bar, which makes debugging harder. An inline error state is both more informative and more reversible.
+
+---
+
+## ADR-008: Google Places Address Autocomplete
+
+### Context
+
+Building addresses in the original form were four individual text inputs (street name, number, postal code, city). This requires the user to know the exact postal code, split street name from number manually, and provides no validation against real addresses. For a property management tool used in Germany, address input is high-frequency and precision matters.
+
+### Decision: single autocomplete input via @vis.gl/react-google-maps
+
+Key decisions:
+
+**`usePlaces.ts`** wraps `useMapsLibrary('places')` from `@vis.gl/react-google-maps`. `getAddressObject()` maps `google.maps.places.PlaceResult` → `FormAddress`. The field names (`streetName`, `streetNumber`, `postalCode`, `city`) align with the internal form schema — no adaptation needed.
+
+**Atomic address setter.** The existing `updateAddress` was field-by-field (one `setForm` call per field). A four-field update would trigger four re-renders and four localStorage writes. A new `setAddress(buildingId, addressIndex, FormAddress)` updates all four fields in one `setForm` call. The field-by-field `updateAddress` was removed from the public API — it no longer has a consumer.
+
+**Country restriction.** Hardcoded to Germany (`componentRestrictions: { country: 'de' }`). This is a product decision that can be parameterised later.
+
+**APIProvider placement.** The `@vis.gl/react-google-maps` `APIProvider` requires client-side rendering. Rather than converting the server layout to `'use client'`, a thin `GoogleMapsProvider` client wrapper was added and nested inside the existing server layout. This keeps the root layout as a server component.
+
+### Street number UX
+
+Google Places suggests addresses in two modes:
+- Street name only (e.g., "Togostraße, Berlin") — returned when user types letters only
+- Full address with number (e.g., "Togostraße 75, 13351 Berlin") — returned when user types street + number
+
+When the user selects a street-only result, `parsed.streetNumber` is empty. The options:
+- **Separate number input**: rejected — users would enter the number there, then also see it appear in the autocomplete when they search with it, creating two sources of truth
+- **Pre-fill and hint**: when `streetNumber` is empty after selection, `handleSelect` pre-fills the input with `streetName + ' '` (ready for the user to append a number) and shows an amber hint: "No house number found — add it after the street name". The incomplete address is not committed to the parent — `onSelect` is only called when `streetNumber` is present
+- `StepBuildings` validates `canProceed` — Next is disabled until every building address has both `streetName` and `streetNumber` non-empty. This is the final backstop regardless of how the user interacted with the autocomplete.
