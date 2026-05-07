@@ -1,4 +1,4 @@
-import type { Staff } from '@/types/staff'
+import type { Staff } from '@/domains/shared/types/staff'
 
 export const MOCK_MANAGERS: Staff[] = [
   { id: 'mgr-1', name: 'Anna Becker' },

@@ -1,10 +1,10 @@
 'use client'
 
-import { ALL_MOCK_STAFF } from '@/mock/staff'
-import { MANAGEMENT_TYPE_LABELS } from '@/constants/propertyTypes'
-import { UNIT_TYPE_LABELS } from '@/constants/unitTypes'
-import type { FormState, FormAddress } from '@/hooks/usePropertyForm'
-import type { UnitType } from '@/types/property'
+import { ALL_MOCK_STAFF } from '@/domains/shared/mock/staff'
+import { MANAGEMENT_TYPE_LABELS } from '@/domains/shared/constants/propertyTypes'
+import { UNIT_TYPE_LABELS } from '@/domains/propertyCreation/constants/unitTypes'
+import type { FormState, FormAddress } from '@/domains/propertyCreation/hooks/usePropertyForm'
+import type { UnitType } from '@/domains/shared/types/property'
 
 type Props = {
   form: FormState
@@ -43,14 +43,14 @@ export const StepReview = ({ form, onBack, onSubmit }: Props) => {
           </div>
           <div className="flex flex-col gap-1.5">
             {building.units.map((unit, unitIndex) => {
-              const typeLabel = unit.type ? UNIT_TYPE_LABELS[unit.type as UnitType] : '—'
+              const unitTypeLabel = unit.type ? UNIT_TYPE_LABELS[unit.type as UnitType] : '—'
               const showCoOwnership = form.managementType === 'WEG'
 
               return (
                 <div key={unit.id} className="flex items-center gap-3 text-sm text-gray-600">
                   <span className="text-gray-400 text-xs w-10 shrink-0">Unit {unitIndex + 1}</span>
                   <span className="font-medium text-gray-900">#{unit.number}</span>
-                  <span>{typeLabel}</span>
+                  <span>{unitTypeLabel}</span>
                   <span className="text-gray-400">·</span>
                   <span>{unit.size} m²</span>
                   <span className="text-gray-400">·</span>

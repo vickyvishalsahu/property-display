@@ -1,4 +1,4 @@
-import type { ManagementType } from '@/types/property'
+import type { ManagementType } from '@/domains/shared/types/property'
 
 export const VALID_MANAGEMENT_TYPES: ManagementType[] = ['WEG', 'MV']
 

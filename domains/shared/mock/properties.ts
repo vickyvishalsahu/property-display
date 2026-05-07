@@ -1,4 +1,4 @@
-import type { WEGProperty, MVProperty } from '@/types/property'
+import type { WEGProperty, MVProperty } from '@/domains/shared/types/property'
 
 const wegProperty1: WEGProperty = {
   id: 'prop-001',

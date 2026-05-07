@@ -1,6 +1,6 @@
 'use client'
 
-import { HelpTrigger } from '@/components/HelpTrigger'
+import { HelpTrigger } from '@/domains/shared/components/HelpTrigger'
 
 type Props = {
   label: string

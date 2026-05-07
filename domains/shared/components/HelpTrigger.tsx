@@ -1,6 +1,6 @@
 'use client'
 
-import { useHelpPanel } from '@/context/HelpPanelContext'
+import { useHelpPanel } from '@/domains/shared/context/HelpPanelContext'
 
 type Props = {
   termId: string

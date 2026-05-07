@@ -1,7 +1,7 @@
 'use client'
 
-import { VALID_UNIT_TYPES, UNIT_TYPE_LABELS } from '@/constants/unitTypes'
-import type { FormBuilding, FormAddress, FormUnit } from '@/hooks/usePropertyForm'
+import { VALID_UNIT_TYPES, UNIT_TYPE_LABELS } from '@/domains/propertyCreation/constants/unitTypes'
+import type { FormBuilding, FormAddress, FormUnit } from '@/domains/propertyCreation/hooks/usePropertyForm'
 
 type Props = {
   building: FormBuilding

@@ -1,11 +1,11 @@
 'use client'
 
 import Link from 'next/link'
-import { MOCK_PROPERTIES } from '@/mock/properties'
-import { ALL_MOCK_STAFF } from '@/mock/staff'
-import { MANAGEMENT_TYPE_LABELS } from '@/constants/propertyTypes'
-import { useProperties } from '@/hooks/useProperties'
-import type { Property } from '@/types/property'
+import { MOCK_PROPERTIES } from '@/domains/shared/mock/properties'
+import { ALL_MOCK_STAFF } from '@/domains/shared/mock/staff'
+import { MANAGEMENT_TYPE_LABELS } from '@/domains/shared/constants/propertyTypes'
+import { useProperties } from '@/domains/shared/hooks/useProperties'
+import type { Property } from '@/domains/shared/types/property'
 
 const formatPropertyNumber = (id: string) => `#${id.replace('prop-', '')}`
 

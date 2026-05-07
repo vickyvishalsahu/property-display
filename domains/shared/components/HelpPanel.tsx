@@ -1,8 +1,8 @@
 'use client'
 
 import { useEffect } from 'react'
-import { useHelpPanel } from '@/context/HelpPanelContext'
-import { HELP_CONTENT } from '@/constants/helpContent'
+import { useHelpPanel } from '@/domains/shared/context/HelpPanelContext'
+import { HELP_CONTENT } from '@/domains/shared/constants/helpContent'
 
 export const HelpPanel = () => {
   const { activeTerm, closePanel } = useHelpPanel()

@@ -1,9 +1,9 @@
 'use client'
 
-import type { ManagementType } from '@/types/property'
-import { MOCK_MANAGERS, MOCK_ACCOUNTANTS } from '@/mock/staff'
-import { HelpSection } from '@/components/HelpSection'
-import type { FormState } from '@/hooks/usePropertyForm'
+import type { ManagementType } from '@/domains/shared/types/property'
+import { MOCK_MANAGERS, MOCK_ACCOUNTANTS } from '@/domains/shared/mock/staff'
+import { HelpSection } from '@/domains/shared/components/HelpSection'
+import type { FormState } from '@/domains/propertyCreation/hooks/usePropertyForm'
 
 type Props = {
   form: FormState

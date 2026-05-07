@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import type { Property } from '@/types/property'
+import type { Property } from '@/domains/shared/types/property'
 
 const STORAGE_KEY = 'buena_properties'
 

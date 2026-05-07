@@ -2,8 +2,8 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { useProperties } from './useProperties'
-import type { ManagementType, UnitType, Address, WEGProperty, MVProperty, WEGUnit, MVUnit } from '@/types/property'
+import { useProperties } from '@/domains/shared/hooks/useProperties'
+import type { ManagementType, UnitType, Address, WEGProperty, MVProperty, WEGUnit, MVUnit } from '@/domains/shared/types/property'
 
 export type FormAddress = {
   streetName: string

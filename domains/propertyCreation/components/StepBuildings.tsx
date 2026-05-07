@@ -1,7 +1,7 @@
 'use client'
 
 import { BuildingForm } from './BuildingForm'
-import type { FormBuilding, FormAddress, FormUnit } from '@/hooks/usePropertyForm'
+import type { FormBuilding, FormAddress, FormUnit } from '@/domains/propertyCreation/hooks/usePropertyForm'
 
 type Props = {
   managementType: 'WEG' | 'MV'

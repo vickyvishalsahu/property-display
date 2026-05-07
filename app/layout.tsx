@@ -1,8 +1,8 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import Link from 'next/link'
-import { HelpPanelProvider } from '@/context/HelpPanelContext'
-import { HelpPanel } from '@/components/HelpPanel'
+import { HelpPanelProvider } from '@/domains/shared/context/HelpPanelContext'
+import { HelpPanel } from '@/domains/shared/components/HelpPanel'
 import './globals.css'
 
 const inter = Inter({

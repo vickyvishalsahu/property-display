@@ -1,10 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { usePropertyForm } from '@/hooks/usePropertyForm'
-import { StepProperty } from './StepProperty'
-import { StepBuildings } from './StepBuildings'
-import { StepReview } from './StepReview'
+import { usePropertyForm } from '@/domains/propertyCreation/hooks/usePropertyForm'
+import { StepProperty } from '@/domains/propertyCreation/components/StepProperty'
+import { StepBuildings } from '@/domains/propertyCreation/components/StepBuildings'
+import { StepReview } from '@/domains/propertyCreation/components/StepReview'
 
 const STEPS = ['Property', 'Buildings', 'Review']
 
