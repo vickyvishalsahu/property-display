@@ -3,7 +3,7 @@ import { Inter } from 'next/font/google'
 import Link from 'next/link'
 import { HelpPanelProvider } from '@/domains/shared/context/HelpPanelContext'
 import { HelpPanel } from '@/domains/shared/components/HelpPanel'
-import { GoogleMapsProvider } from './GoogleMapsProvider'
+import { GoogleMapsProvider } from '@/domains/shared/providers/GoogleMapsProvider'
 import './globals.css'
 
 const inter = Inter({
