@@ -2,7 +2,7 @@
 
 import type { ManagementType } from '@/types/property'
 import { MOCK_MANAGERS, MOCK_ACCOUNTANTS } from '@/mock/staff'
-import { HelpTrigger } from '@/components/HelpTrigger'
+import { HelpSection } from '@/components/HelpSection'
 import type { FormState } from '@/hooks/usePropertyForm'
 
 type Props = {
@@ -37,11 +37,7 @@ export const StepProperty = ({
   }
 
   const renderTypeToggle = () => (
-    <div>
-      <div className="flex items-center gap-1.5 mb-2">
-        <label className="text-sm font-medium text-gray-700">Management type</label>
-        <HelpTrigger termId="weg" />
-      </div>
+    <HelpSection label="Management type" termId="management-type">
       <div className="flex gap-3">
         {(['WEG', 'MV'] as ManagementType[]).map((managementType) => {
           const isSelected = form.managementType === managementType
@@ -61,7 +57,7 @@ export const StepProperty = ({
           )
         })}
       </div>
-    </div>
+    </HelpSection>
   )
 
   return (
