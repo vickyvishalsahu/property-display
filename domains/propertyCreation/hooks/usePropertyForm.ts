@@ -162,10 +162,13 @@ export const usePropertyForm = () => {
     }))
 
   const removeBuilding = (buildingId: string) =>
-    setForm((previousForm) => ({
-      ...previousForm,
-      buildings: previousForm.buildings.filter((building) => building.id !== buildingId),
-    }))
+    setForm((previousForm) => {
+      if (previousForm.buildings.length <= 1) return previousForm
+      return {
+        ...previousForm,
+        buildings: previousForm.buildings.filter((building) => building.id !== buildingId),
+      }
+    })
 
   const toggleSecondAddress = (buildingId: string) =>
     setForm((previousForm) => ({
