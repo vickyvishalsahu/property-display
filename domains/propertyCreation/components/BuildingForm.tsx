@@ -3,6 +3,7 @@
 import { VALID_UNIT_TYPES, UNIT_TYPE_LABELS } from '@/domains/propertyCreation/constants/unitTypes'
 import type { FormBuilding, FormAddress, FormUnit } from '@/domains/propertyCreation/hooks/usePropertyForm'
 import { AddressAutocomplete } from '@/domains/propertyCreation/components/AddressAutocomplete'
+import { HelpSection } from '@/domains/shared/components/HelpSection'
 
 type Props = {
   building: FormBuilding
@@ -206,17 +207,18 @@ export const BuildingForm = ({
 
       {renderSecondAddress()}
 
-      <div className="flex flex-col gap-3">
-        <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Units</p>
-        {renderUnits()}
-        <button
-          type="button"
-          onClick={onAddUnit}
-          className="text-xs text-gray-400 hover:text-gray-700 text-left py-1"
-        >
-          + Add unit
-        </button>
-      </div>
+      <HelpSection label="Units" termId="units">
+        <div className="flex flex-col gap-3">
+          {renderUnits()}
+          <button
+            type="button"
+            onClick={onAddUnit}
+            className="text-xs text-gray-400 hover:text-gray-700 text-left py-1"
+          >
+            + Add unit
+          </button>
+        </div>
+      </HelpSection>
     </div>
   )
 }

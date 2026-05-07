@@ -24,4 +24,8 @@ export const HELP_CONTENT: Record<string, HelpEntry> = {
     title: 'MEA — Miteigentumsanteil',
     body: 'The co-ownership share assigned to each unit in a WEG property. Used to calculate each owner\'s proportion of shared costs and voting weight.',
   },
+  units: {
+    title: 'Units',
+    body: 'A unit is any individually identifiable space within a building — apartment, office, parking spot, or garden plot. Each unit gets a number (its internal identifier), a type, floor, entrance stairwell, and size. For WEG properties, each unit also carries a co-ownership share (MEA) used to split shared costs. The construction year applies to the unit\'s building, not the unit itself.',
+  },
 }
