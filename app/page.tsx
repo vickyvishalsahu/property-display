@@ -1,7 +1,6 @@
 'use client'
 
 import Link from 'next/link'
-import { MOCK_PROPERTIES } from '@/domains/shared/mock/properties'
 import { ALL_MOCK_STAFF } from '@/domains/shared/mock/staff'
 import { MANAGEMENT_TYPE_LABELS } from '@/domains/shared/constants/propertyTypes'
 import { useProperties } from '@/domains/shared/hooks/useProperties'
@@ -61,8 +60,7 @@ const PropertyCard = ({ property }: { property: Property }) => {
 }
 
 const Dashboard = () => {
-  const { properties: userProperties, removeProperty } = useProperties()
-  const allProperties = [...MOCK_PROPERTIES, ...userProperties]
+  const { properties: allProperties, removeProperty } = useProperties()
   const draftProperties = allProperties.filter((property) => property.isDraft)
   const completeProperties = allProperties.filter((property) => !property.isDraft)
   const totalCount = allProperties.length

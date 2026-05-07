@@ -2,15 +2,22 @@
 
 import { useState, useEffect } from 'react'
 import type { Property } from '@/domains/shared/types/property'
+import { MOCK_PROPERTIES } from '@/domains/shared/mock/properties'
 
 const STORAGE_KEY = 'buena_properties'
 
 export const useProperties = () => {
-  const [properties, setProperties] = useState<Property[]>([])
+  const [properties, setProperties] = useState<Property[]>(MOCK_PROPERTIES)
+  const [isLoaded, setIsLoaded] = useState(false)
 
   useEffect(() => {
     const stored = localStorage.getItem(STORAGE_KEY)
-    if (stored) setProperties(JSON.parse(stored))
+    if (stored) {
+      const storedProperties: Property[] = JSON.parse(stored)
+      const storedIds = new Set(storedProperties.map((property) => property.id))
+      setProperties([...MOCK_PROPERTIES.filter((property) => !storedIds.has(property.id)), ...storedProperties])
+    }
+    setIsLoaded(true)
   }, [])
 
   const persist = (updated: Property[]) => {
@@ -34,5 +41,5 @@ export const useProperties = () => {
     setProperties((previous) => persist(previous.filter((property) => property.id !== id)))
   }
 
-  return { properties, upsertProperty, removeProperty }
+  return { properties, upsertProperty, removeProperty, isLoaded }
 }

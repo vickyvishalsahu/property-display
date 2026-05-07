@@ -16,6 +16,7 @@ vi.mock('@/domains/shared/hooks/useProperties', () => ({
     upsertProperty: mockUpsertProperty,
     removeProperty: mockRemoveProperty,
     properties: mockProperties,
+    isLoaded: true,
   }),
 }))
 

@@ -31,8 +31,14 @@ describe('DraftCard', () => {
     expect(screen.getByText('Draft')).toBeInTheDocument()
   })
 
-  it('Continue link points to /properties/new?draft=<id>', () => {
+  it('Continue link goes to /buildings when step 1 is complete', () => {
     render(<DraftCard draft={makeDraftProperty()} onDiscard={vi.fn()} />)
+    const link = screen.getByRole('link', { name: /continue/i })
+    expect(link).toHaveAttribute('href', '/properties/prop-abc/buildings')
+  })
+
+  it('Continue link goes to step property when step 1 is incomplete', () => {
+    render(<DraftCard draft={makeDraftProperty({ name: '', managerId: '' })} onDiscard={vi.fn()} />)
     const link = screen.getByRole('link', { name: /continue/i })
     expect(link).toHaveAttribute('href', '/properties/prop-abc')
   })

@@ -192,7 +192,10 @@ export const usePropertyForm = (initialPropertyId?: string) => {
   const [propertyId, setPropertyId] = useState<string | null>(null)
   const [originalIsDraft, setOriginalIsDraft] = useState(true)
 
-  const { properties, upsertProperty, removeProperty } = useProperties()
+  const { properties, upsertProperty, removeProperty, isLoaded } = useProperties()
+
+  const isLoading = !isLoaded
+  const isPropertyNotFound = isLoaded && !!initialPropertyId && !propertyId
   const router = useRouter()
 
   useEffect(() => {
@@ -320,6 +323,8 @@ export const usePropertyForm = (initialPropertyId?: string) => {
   return {
     form,
     propertyId,
+    isLoading,
+    isPropertyNotFound,
     setManagementType,
     setName,
     setManagerId,

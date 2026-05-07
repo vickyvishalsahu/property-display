@@ -9,6 +9,11 @@ type Props = {
   onDiscard: (id: string) => void
 }
 
+const getDraftRoute = (draft: Property): string => {
+  const step1Complete = draft.name.trim() !== '' && draft.managerId !== '' && draft.accountantId !== ''
+  return step1Complete ? `/properties/${draft.id}/buildings` : `/properties/${draft.id}`
+}
+
 export const DraftCard = ({ draft, onDiscard }: Props) => {
   const displayName = draft.name || 'Untitled draft'
   const managementLabel = MANAGEMENT_TYPE_LABELS[draft.managementType]
@@ -27,7 +32,7 @@ export const DraftCard = ({ draft, onDiscard }: Props) => {
 
       <div className="flex items-center justify-between pt-1 border-t border-amber-200">
         <Link
-          href={`/properties/${draft.id}`}
+          href={getDraftRoute(draft)}
           className="text-sm font-medium text-amber-900 hover:text-amber-700"
         >
           Continue →

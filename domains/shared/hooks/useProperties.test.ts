@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
 import { useProperties } from '@/domains/shared/hooks/useProperties'
+import { MOCK_PROPERTIES } from '@/domains/shared/mock/properties'
 import type { Property } from '@/domains/shared/types/property'
 
 const makeProperty = (id: string, isDraft = false): Property => ({
@@ -20,41 +21,55 @@ describe('useProperties', () => {
     localStorage.clear()
   })
 
-  it('starts with an empty list when localStorage is empty', () => {
+  it('includes mock properties when localStorage is empty', async () => {
     const { result } = renderHook(() => useProperties())
-    expect(result.current.properties).toEqual([])
+    await act(async () => {})
+    const ids = result.current.properties.map((property) => property.id)
+    MOCK_PROPERTIES.forEach((mockProperty) => {
+      expect(ids).toContain(mockProperty.id)
+    })
   })
 
-  it('loads properties from localStorage on mount', async () => {
-    const stored = [makeProperty('prop-1')]
+  it('merges localStorage properties with mocks on mount', async () => {
+    const stored = [makeProperty('prop-user-1')]
     localStorage.setItem(STORAGE_KEY, JSON.stringify(stored))
     const { result } = renderHook(() => useProperties())
     await act(async () => {})
-    expect(result.current.properties).toEqual(stored)
+    const ids = result.current.properties.map((property) => property.id)
+    expect(ids).toContain('prop-user-1')
+    MOCK_PROPERTIES.forEach((mockProperty) => {
+      expect(ids).toContain(mockProperty.id)
+    })
+  })
+
+  it('isLoaded is true after mount', async () => {
+    const { result } = renderHook(() => useProperties())
+    await act(async () => {})
+    expect(result.current.isLoaded).toBe(true)
   })
 
   describe('upsertProperty', () => {
     it('inserts when id is new', () => {
       const { result } = renderHook(() => useProperties())
       act(() => { result.current.upsertProperty(makeProperty('prop-new')) })
-      expect(result.current.properties).toHaveLength(1)
-      expect(result.current.properties[0].id).toBe('prop-new')
+      const ids = result.current.properties.map((property) => property.id)
+      expect(ids).toContain('prop-new')
     })
 
     it('updates existing entry when id matches', () => {
       const { result } = renderHook(() => useProperties())
       act(() => { result.current.upsertProperty(makeProperty('prop-1', true)) })
       act(() => { result.current.upsertProperty({ ...makeProperty('prop-1'), isDraft: false, name: 'Updated' }) })
-      expect(result.current.properties).toHaveLength(1)
-      expect(result.current.properties[0].name).toBe('Updated')
-      expect(result.current.properties[0].isDraft).toBe(false)
+      const match = result.current.properties.find((property) => property.id === 'prop-1')
+      expect(match?.name).toBe('Updated')
+      expect(match?.isDraft).toBe(false)
     })
 
-    it('persists to localStorage', () => {
+    it('persists upserted property to localStorage', () => {
       const { result } = renderHook(() => useProperties())
       act(() => { result.current.upsertProperty(makeProperty('prop-1')) })
-      const stored = JSON.parse(localStorage.getItem(STORAGE_KEY)!)
-      expect(stored).toHaveLength(1)
+      const stored: Property[] = JSON.parse(localStorage.getItem(STORAGE_KEY)!)
+      expect(stored.some((property) => property.id === 'prop-1')).toBe(true)
     })
   })
 
@@ -64,16 +79,17 @@ describe('useProperties', () => {
       act(() => { result.current.upsertProperty(makeProperty('prop-1')) })
       act(() => { result.current.upsertProperty(makeProperty('prop-2')) })
       act(() => { result.current.removeProperty('prop-1') })
-      expect(result.current.properties).toHaveLength(1)
-      expect(result.current.properties[0].id).toBe('prop-2')
+      const ids = result.current.properties.map((property) => property.id)
+      expect(ids).not.toContain('prop-1')
+      expect(ids).toContain('prop-2')
     })
 
     it('persists removal to localStorage', () => {
       const { result } = renderHook(() => useProperties())
       act(() => { result.current.upsertProperty(makeProperty('prop-1')) })
       act(() => { result.current.removeProperty('prop-1') })
-      const stored = JSON.parse(localStorage.getItem(STORAGE_KEY)!)
-      expect(stored).toHaveLength(0)
+      const stored: Property[] = JSON.parse(localStorage.getItem(STORAGE_KEY)!)
+      expect(stored.some((property) => property.id === 'prop-1')).toBe(false)
     })
   })
 })

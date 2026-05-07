@@ -4,6 +4,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { usePropertyForm } from '@/domains/propertyCreation/hooks/usePropertyForm'
 import { PropertyStepper } from '@/domains/propertyCreation/components/PropertyStepper'
 import { StepProperty } from '@/domains/propertyCreation/components/StepProperty'
+import { PropertyNotFound } from '@/domains/propertyCreation/components/PropertyNotFound'
 
 const EditProperty = () => {
   const params = useParams()
@@ -12,6 +13,8 @@ const EditProperty = () => {
 
   const {
     form,
+    isLoading,
+    isPropertyNotFound,
     setManagementType,
     setName,
     setManagerId,
@@ -22,7 +25,11 @@ const EditProperty = () => {
     router.push(`/properties/${propertyId}/buildings`)
   }
 
-  return (
+  const renderLoading = () => null
+
+  const renderNotFound = () => <PropertyNotFound />
+
+  const renderForm = () => (
     <div className="max-w-2xl">
       <h1 className="text-xl font-semibold text-gray-900 mb-8">Edit Property</h1>
       <PropertyStepper activeStep={0} />
@@ -36,6 +43,10 @@ const EditProperty = () => {
       />
     </div>
   )
+
+  if (isLoading) return renderLoading()
+  if (isPropertyNotFound) return renderNotFound()
+  return renderForm()
 }
 
 export default EditProperty
