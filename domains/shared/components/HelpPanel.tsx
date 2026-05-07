@@ -18,6 +18,29 @@ export const HelpPanel = () => {
     return () => document.removeEventListener('keydown', handleKeyDown)
   }, [closePanel])
 
+  const renderInline = (text: string) => {
+    const parts = text.split(/\*\*(.+?)\*\*/)
+    return parts.map((part, partIndex) =>
+      partIndex % 2 === 1 ? (
+        <strong key={partIndex} className="font-semibold text-gray-800">
+          {part}
+        </strong>
+      ) : (
+        part
+      )
+    )
+  }
+
+  const renderBody = (body: string) =>
+    body
+      .split('\n\n')
+      .filter(Boolean)
+      .map((paragraph, paragraphIndex) => (
+        <p key={paragraphIndex} className="text-sm text-gray-600 leading-relaxed">
+          {renderInline(paragraph)}
+        </p>
+      ))
+
   const renderContent = () => {
     if (!content) return null
     return (
@@ -32,7 +55,7 @@ export const HelpPanel = () => {
             ×
           </button>
         </div>
-        <p className="text-sm text-gray-600 leading-relaxed">{content.body}</p>
+        <div className="flex flex-col gap-3">{renderBody(content.body)}</div>
       </>
     )
   }
@@ -47,11 +70,11 @@ export const HelpPanel = () => {
         />
       )}
       <div
-        className={`fixed top-0 right-0 h-full w-80 bg-white border-l border-gray-200 z-50 p-6 shadow-lg transition-transform duration-200 ${
+        className={`fixed top-0 right-0 h-full w-80 bg-white border-l border-gray-200 z-50 flex flex-col shadow-lg transition-transform duration-200 ${
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
-        {renderContent()}
+        <div className="overflow-y-auto p-6">{renderContent()}</div>
       </div>
     </>
   )
