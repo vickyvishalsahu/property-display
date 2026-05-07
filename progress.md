@@ -315,3 +315,49 @@ When the user selects a street-only result, `parsed.streetNumber` is empty. The 
 - **Separate number input**: rejected — users would enter the number there, then also see it appear in the autocomplete when they search with it, creating two sources of truth
 - **Pre-fill and hint**: when `streetNumber` is empty after selection, `handleSelect` pre-fills the input with `streetName + ' '` (ready for the user to append a number) and shows an amber hint: "No house number found — add it after the street name". The incomplete address is not committed to the parent — `onSelect` is only called when `streetNumber` is present
 - `StepBuildings` validates `canProceed` — Next is disabled until every building address has both `streetName` and `streetNumber` non-empty. This is the final backstop regardless of how the user interacted with the autocomplete.
+
+---
+
+## ADR-009: Inline Form Validation
+
+### Context
+
+The original wizard used HTML `required` attributes on inputs and a `disabled` Next button when `canProceed` was false. The native browser validation triggered tooltip popups that were visually inconsistent with the app's design. The disabled button gave no indication of what was missing.
+
+### Decision: submit-triggered inline errors
+
+`required` attributes and `disabled` buttons were removed. Both `StepProperty` and `StepBuildings` now track a `submitted: boolean` state (initially `false`) internally. When the user clicks Next while `canProceed` is false, `submitted` is set to `true` and the form stays on the current step. Each field derives its own error boolean (`submitted && fieldIsEmpty`) and renders a red border + "Required" text beneath it. Errors clear per-field as the user fills them in. The Next button is always enabled — clicking it either advances the step or reveals what's missing.
+
+`noValidate` is set on both form elements to fully suppress native browser validation.
+
+Unit completeness was also pulled into `canProceed` in `StepBuildings` (previously it only checked addresses). The `submitted` flag is passed as a prop to `BuildingForm`, which renders per-field errors on each unit row.
+
+### What was not done
+
+No blur-triggered validation (errors on tab-out). The pattern chosen is submit-first: show nothing until the user attempts to proceed, then show exactly what is blocking them. This avoids premature error states when the user is still typing their first character.
+
+---
+
+## ADR-010: PDF Import via AI Extraction
+
+### Context
+
+Manual property entry is the main friction point in the wizard. Property managers typically receive property data as PDFs (Teilungserklärung, Mietvertrag, property data sheets). An extraction step that reads these documents and pre-fills the wizard removes most of the repetitive typing.
+
+### Decision: Groq LLM + pdfjs-dist, server-side API route
+
+**Why LLM over OCR.** A digital PDF (the common case) already contains machine-readable text — no OCR needed. An LLM understands document structure and field semantics, so it can extract the correct value for each field regardless of how the document is formatted. OCR alone only converts images to text and has no understanding of what the text means.
+
+**PDF text extraction.** `pdfjs-dist` runs in the browser (client-side). The user's PDF is never uploaded to a server — only the extracted text is sent to the API route. This avoids file upload infrastructure and keeps the PDF local.
+
+**Groq API (server-side).** The API call is made from a Next.js API route (`/api/extract-property`), not from the client. The `GROQ_API_KEY` is a server-only env variable and never reaches the browser. Model: `llama-3.3-70b-versatile` with `response_format: { type: 'json_object' }` — JSON mode guarantees a parseable response and removes the need to strip markdown fences.
+
+**Prompt design.** The system prompt defines the exact JSON schema, maps German property terminology to the internal type vocabulary (e.g. Wohnungseigentümergemeinschaft → `"WEG"`, Stellplatz → `"parking"`), and instructs the model to use `null` for any field not found in the document rather than guessing.
+
+**Validation and retry.** The API route validates the parsed JSON against the `PropertyImport` type manually (no Zod — keeping dependencies minimal). If validation fails, the route retries up to 2 times, feeding the previous bad response and a description of the error back to the model in the conversation context. This handles cases where the model's first attempt is structurally wrong (e.g. returns an array instead of an object at the top level). After 3 total attempts with no valid result, the route returns 422 and the client shows an error state.
+
+**Data flow.** On success, the client hook stores the `PropertyImport` JSON in `sessionStorage` under a generated UUID key and navigates to `/properties/new?import=<key>`. The new-property page reads and deletes the key from `sessionStorage` on mount, maps it to `Partial<FormState>` via `formFromImport`, and passes it to `usePropertyForm` as `initialFormOverrides`. The hook merges the overrides into its default state — missing fields stay empty, the user fills them in. No new storage layer or context is needed.
+
+**Partial pre-fill.** The `PropertyImport` type has all fields optional. A PDF with buildings and units but no management type will pre-fill step 2 and leave step 1 empty — the user still picks WEG or MV. The existing inline validation catches anything still missing when the user tries to advance.
+
+**Fallback.** Two distinct error states are surfaced: `'pdf'` (text extraction failed — likely a scanned/image PDF) and `'ai'` (extraction or validation failed after retries). Both show an inline message in the import button area with a "Try again" link that resets to idle. The user can also ignore the error and add the property manually.
