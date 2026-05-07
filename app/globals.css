@@ -9,3 +9,9 @@ html {
   font-weight: 500;
   font-family: var(--font-sans);
 }
+
+@layer base {
+  button {
+    cursor: pointer;
+  }
+}
