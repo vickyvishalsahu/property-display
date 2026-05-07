@@ -180,7 +180,7 @@ const formFromProperty = (property: Property): FormState => ({
   })),
 })
 
-export const usePropertyForm = (initialDraftId?: string) => {
+export const usePropertyForm = (initialPropertyId?: string) => {
   const initialFormState: FormState = {
     managementType: null,
     name: '',
@@ -190,22 +190,24 @@ export const usePropertyForm = (initialDraftId?: string) => {
   }
   const [form, setForm] = useState<FormState>(initialFormState)
   const [propertyId, setPropertyId] = useState<string | null>(null)
+  const [originalIsDraft, setOriginalIsDraft] = useState(true)
 
   const { properties, upsertProperty, removeProperty } = useProperties()
   const router = useRouter()
 
   useEffect(() => {
-    if (!initialDraftId || propertyId) return
-    const draft = properties.find((property) => property.id === initialDraftId && property.isDraft)
-    if (draft) {
-      setForm(formFromProperty(draft))
-      setPropertyId(initialDraftId)
+    if (!initialPropertyId || propertyId) return
+    const match = properties.find((property) => property.id === initialPropertyId)
+    if (match) {
+      setForm(formFromProperty(match))
+      setPropertyId(initialPropertyId)
+      setOriginalIsDraft(match.isDraft)
     }
   }, [properties])
 
   useEffect(() => {
     if (!propertyId) return
-    upsertProperty(buildProperty(form, propertyId, true))
+    upsertProperty(buildProperty(form, propertyId, originalIsDraft))
   }, [form, propertyId])
 
   const activateDraft = () => {

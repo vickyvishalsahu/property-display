@@ -233,12 +233,41 @@ describe('usePropertyForm', () => {
       )
     })
 
-    it('auto-restores form when initialDraftId matches a property in the list', async () => {
+    it('auto-restores form when initialPropertyId matches a draft property', async () => {
       mockProperties = [makeDraftProperty('id-auto', 'Auto Restored')]
       const { result } = renderHook(() => usePropertyForm('id-auto'))
       await act(async () => {})
       expect(result.current.form.name).toBe('Auto Restored')
       expect(result.current.form.managementType).toBe('WEG')
+    })
+
+    it('auto-restores form when initialPropertyId matches a complete property', async () => {
+      mockProperties = [{ ...makeDraftProperty('id-complete', 'Complete Property'), isDraft: false }]
+      const { result } = renderHook(() => usePropertyForm('id-complete'))
+      await act(async () => {})
+      expect(result.current.form.name).toBe('Complete Property')
+    })
+
+    it('auto-save preserves isDraft: true when restoring a draft', async () => {
+      mockProperties = [makeDraftProperty('id-draft', 'Draft Property')]
+      const { result } = renderHook(() => usePropertyForm('id-draft'))
+      await act(async () => {})
+      mockUpsertProperty.mockClear()
+      act(() => { result.current.setName('Modified Draft') })
+      expect(mockUpsertProperty).toHaveBeenCalledWith(
+        expect.objectContaining({ id: 'id-draft', isDraft: true }),
+      )
+    })
+
+    it('auto-save preserves isDraft: false when restoring a complete property', async () => {
+      mockProperties = [{ ...makeDraftProperty('id-complete', 'Complete'), isDraft: false }]
+      const { result } = renderHook(() => usePropertyForm('id-complete'))
+      await act(async () => {})
+      mockUpsertProperty.mockClear()
+      act(() => { result.current.setName('Modified Complete') })
+      expect(mockUpsertProperty).toHaveBeenCalledWith(
+        expect.objectContaining({ id: 'id-complete', isDraft: false }),
+      )
     })
 
     it('auto-restore activates saving to the same property id', async () => {
