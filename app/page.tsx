@@ -5,6 +5,7 @@ import { ALL_MOCK_STAFF } from '@/domains/shared/mock/staff'
 import { MANAGEMENT_TYPE_LABELS } from '@/domains/shared/constants/propertyTypes'
 import { useProperties } from '@/domains/shared/hooks/useProperties'
 import { DraftCard } from '@/domains/propertyCreation/components/DraftCard'
+import { PdfImport } from '@/domains/propertyCreation/components/PdfImport'
 import type { Property } from '@/domains/shared/types/property'
 
 const formatPropertyNumber = (id: string) => `#${id.replace('prop-', '')}`
@@ -92,11 +93,14 @@ const Dashboard = () => {
 
   return (
     <div>
-      <div className="mb-6">
-        <h1 className="text-xl font-semibold text-gray-900">Properties</h1>
-        {totalCount > 0 && (
-          <p className="text-sm text-gray-500 mt-0.5">{totalCount} total</p>
-        )}
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-xl font-semibold text-gray-900">Properties</h1>
+          {totalCount > 0 && (
+            <p className="text-sm text-gray-500 mt-0.5">{totalCount} total</p>
+          )}
+        </div>
+        <PdfImport />
       </div>
       {totalCount === 0 ? renderEmptyState() : renderProperties()}
     </div>

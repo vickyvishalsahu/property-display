@@ -180,15 +180,20 @@ const formFromProperty = (property: Property): FormState => ({
   })),
 })
 
-export const usePropertyForm = (initialPropertyId?: string) => {
-  const initialFormState: FormState = {
+export const usePropertyForm = (
+  initialPropertyId?: string,
+  initialFormOverrides?: Partial<FormState>
+) => {
+  const defaultFormState: FormState = {
     managementType: null,
     name: '',
     managerId: '',
     accountantId: '',
     buildings: [emptyBuilding()],
   }
-  const [form, setForm] = useState<FormState>(initialFormState)
+  const [form, setForm] = useState<FormState>(
+    initialFormOverrides ? { ...defaultFormState, ...initialFormOverrides } : defaultFormState
+  )
   const [propertyId, setPropertyId] = useState<string | null>(null)
   const [originalIsDraft, setOriginalIsDraft] = useState(true)
 

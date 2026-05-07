@@ -1,13 +1,33 @@
 'use client'
 
-import { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { Suspense, useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { usePropertyForm } from '@/domains/propertyCreation/hooks/usePropertyForm'
 import { PropertyStepper } from '@/domains/propertyCreation/components/PropertyStepper'
 import { StepProperty } from '@/domains/propertyCreation/components/StepProperty'
+import { formFromImport } from '@/domains/propertyCreation/hooks/formFromImport'
+import type { PropertyImport } from '@/domains/shared/types/propertyImport'
+import type { FormState } from '@/domains/propertyCreation/hooks/usePropertyForm'
+
+const resolveImportOverrides = (importKey: string | null): Partial<FormState> | undefined => {
+  if (!importKey) return undefined
+  try {
+    const stored = sessionStorage.getItem(`property-import-${importKey}`)
+    if (!stored) return undefined
+    const propertyImport: PropertyImport = JSON.parse(stored)
+    sessionStorage.removeItem(`property-import-${importKey}`)
+    return formFromImport(propertyImport)
+  } catch {
+    return undefined
+  }
+}
 
 const NewProperty = () => {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const importKey = searchParams.get('import')
+  const initialFormOverrides = resolveImportOverrides(importKey)
+
   const {
     form,
     propertyId,
@@ -16,7 +36,7 @@ const NewProperty = () => {
     setManagerId,
     setAccountantId,
     activateDraft,
-  } = usePropertyForm()
+  } = usePropertyForm(undefined, initialFormOverrides)
 
   useEffect(() => {
     if (propertyId) router.push(`/properties/${propertyId}/buildings`)
@@ -42,4 +62,10 @@ const NewProperty = () => {
   )
 }
 
-export default NewProperty
+const NewPropertyPage = () => (
+  <Suspense>
+    <NewProperty />
+  </Suspense>
+)
+
+export default NewPropertyPage
