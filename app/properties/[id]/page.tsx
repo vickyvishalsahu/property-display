@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
+import { useParams } from 'next/navigation'
 import { usePropertyForm } from '@/domains/propertyCreation/hooks/usePropertyForm'
 import { StepProperty } from '@/domains/propertyCreation/components/StepProperty'
 import { StepBuildings } from '@/domains/propertyCreation/components/StepBuildings'
@@ -8,7 +9,10 @@ import { StepReview } from '@/domains/propertyCreation/components/StepReview'
 
 const STEPS = ['Property', 'Buildings', 'Review']
 
-const NewProperty = () => {
+const EditPropertyContent = () => {
+  const params = useParams()
+  const propertyId = params.id as string
+
   const [currentStep, setCurrentStep] = useState(0)
   const {
     form,
@@ -24,16 +28,10 @@ const NewProperty = () => {
     removeUnit,
     updateUnit,
     submit,
-    activateDraft,
-  } = usePropertyForm()
+  } = usePropertyForm(propertyId)
 
   const goNext = () => setCurrentStep((previousStep) => Math.min(previousStep + 1, STEPS.length - 1))
   const goBack = () => setCurrentStep((previousStep) => Math.max(previousStep - 1, 0))
-
-  const handlePropertyStepNext = () => {
-    activateDraft()
-    goNext()
-  }
 
   const renderStepper = () => (
     <div className="flex items-center gap-2 mb-8">
@@ -69,7 +67,7 @@ const NewProperty = () => {
           setName={setName}
           setManagerId={setManagerId}
           setAccountantId={setAccountantId}
-          onNext={handlePropertyStepNext}
+          onNext={goNext}
         />
       )
     }
@@ -97,11 +95,17 @@ const NewProperty = () => {
 
   return (
     <div className="max-w-2xl">
-      <h1 className="text-xl font-semibold text-gray-900 mb-8">Add Property</h1>
+      <h1 className="text-xl font-semibold text-gray-900 mb-8">Edit Property</h1>
       {renderStepper()}
       {renderStep()}
     </div>
   )
 }
 
-export default NewProperty
+const EditProperty = () => (
+  <Suspense>
+    <EditPropertyContent />
+  </Suspense>
+)
+
+export default EditProperty

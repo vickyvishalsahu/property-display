@@ -34,7 +34,7 @@ describe('DraftCard', () => {
   it('Continue link points to /properties/new?draft=<id>', () => {
     render(<DraftCard draft={makeDraftProperty()} onDiscard={vi.fn()} />)
     const link = screen.getByRole('link', { name: /continue/i })
-    expect(link).toHaveAttribute('href', '/properties/new?draft=prop-abc')
+    expect(link).toHaveAttribute('href', '/properties/prop-abc')
   })
 
   it('calls onDiscard with property id when Discard is clicked', async () => {

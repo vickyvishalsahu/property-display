@@ -28,7 +28,10 @@ const PropertyCard = ({ property }: { property: Property }) => {
   const typeStyle = MANAGEMENT_TYPE_STYLES[property.managementType]
 
   return (
-    <div className="bg-white border border-gray-200 rounded-xl p-5 flex flex-col gap-4">
+    <Link
+      href={`/properties/${property.id}`}
+      className="bg-white border border-gray-200 rounded-xl p-5 flex flex-col gap-4 hover:shadow-md transition-shadow"
+    >
       <div className="flex items-start justify-between gap-2">
         <div className="flex flex-col gap-1">
           <span className="text-xs text-gray-400 font-mono">{propertyNumber}</span>
@@ -53,7 +56,7 @@ const PropertyCard = ({ property }: { property: Property }) => {
       <div className="pt-1 border-t border-gray-100 text-xs text-gray-400">
         Manager: <span className="text-gray-600">{managerName}</span>
       </div>
-    </div>
+    </Link>
   )
 }
 

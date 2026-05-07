@@ -27,7 +27,7 @@ export const DraftCard = ({ draft, onDiscard }: Props) => {
 
       <div className="flex items-center justify-between pt-1 border-t border-amber-200">
         <Link
-          href={`/properties/new?draft=${draft.id}`}
+          href={`/properties/${draft.id}`}
           className="text-sm font-medium text-amber-900 hover:text-amber-700"
         >
           Continue →
