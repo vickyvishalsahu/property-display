@@ -10,10 +10,10 @@ type Props = {
   canRemove: boolean
   onRemove: () => void
   onToggleSecondAddress: () => void
-  onUpdateAddress: (addressIndex: 0 | 1, field: keyof FormAddress, value: string) => void
+  onUpdateAddress: (addressIndex: 0 | 1, field: keyof FormAddress, fieldValue: string) => void
   onAddUnit: () => void
   onRemoveUnit: (unitId: string) => void
-  onUpdateUnit: (unitId: string, field: keyof FormUnit, value: string) => void
+  onUpdateUnit: (unitId: string, field: keyof FormUnit, fieldValue: string) => void
 }
 
 const inputClass =
@@ -21,7 +21,7 @@ const inputClass =
 
 type AddressFieldsProps = {
   address: FormAddress
-  onChange: (field: keyof FormAddress, value: string) => void
+  onChange: (field: keyof FormAddress, fieldValue: string) => void
 }
 
 const AddressFields = ({ address, onChange }: AddressFieldsProps) => (
@@ -110,7 +110,7 @@ export const BuildingForm = ({
         </div>
         <AddressFields
           address={building.addresses[1]}
-          onChange={(field, value) => onUpdateAddress(1, field, value)}
+          onChange={(field, fieldValue) => onUpdateAddress(1, field, fieldValue)}
         />
       </div>
     )
@@ -249,7 +249,7 @@ export const BuildingForm = ({
         <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Address 1</p>
         <AddressFields
           address={building.addresses[0]}
-          onChange={(field, value) => onUpdateAddress(0, field, value)}
+          onChange={(field, fieldValue) => onUpdateAddress(0, field, fieldValue)}
         />
       </div>
 

@@ -142,8 +142,8 @@ export const usePropertyForm = () => {
   const { addProperty } = useProperties()
   const router = useRouter()
 
-  const setManagementType = (type: ManagementType) =>
-    setForm((previousForm) => ({ ...previousForm, managementType: type }))
+  const setManagementType = (managementType: ManagementType) =>
+    setForm((previousForm) => ({ ...previousForm, managementType }))
 
   const setName = (name: string) =>
     setForm((previousForm) => ({ ...previousForm, name }))
@@ -183,7 +183,7 @@ export const usePropertyForm = () => {
     buildingId: string,
     addressIndex: 0 | 1,
     field: keyof FormAddress,
-    value: string
+    fieldValue: string
   ) =>
     setForm((previousForm) => ({
       ...previousForm,
@@ -195,7 +195,7 @@ export const usePropertyForm = () => {
           building.addresses[0],
           building.addresses[1],
         ]
-        updatedAddresses[addressIndex] = { ...currentAddress, [field]: value }
+        updatedAddresses[addressIndex] = { ...currentAddress, [field]: fieldValue }
         return { ...building, addresses: updatedAddresses }
       }),
     }))
@@ -221,7 +221,7 @@ export const usePropertyForm = () => {
       }),
     }))
 
-  const updateUnit = (buildingId: string, unitId: string, field: keyof FormUnit, value: string) =>
+  const updateUnit = (buildingId: string, unitId: string, field: keyof FormUnit, fieldValue: string) =>
     setForm((previousForm) => ({
       ...previousForm,
       buildings: previousForm.buildings.map((building) => {
@@ -230,7 +230,7 @@ export const usePropertyForm = () => {
           ...building,
           units: building.units.map((unit) => {
             if (unit.id !== unitId) return unit
-            return { ...unit, [field]: value }
+            return { ...unit, [field]: fieldValue }
           }),
         }
       }),

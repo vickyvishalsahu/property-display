@@ -7,7 +7,7 @@ import type { FormState } from '@/hooks/usePropertyForm'
 
 type Props = {
   form: FormState
-  setManagementType: (type: ManagementType) => void
+  setManagementType: (managementType: ManagementType) => void
   setName: (name: string) => void
   setManagerId: (id: string) => void
   setAccountantId: (id: string) => void
@@ -43,20 +43,20 @@ export const StepProperty = ({
         <HelpTrigger termId="weg" />
       </div>
       <div className="flex gap-3">
-        {(['WEG', 'MV'] as ManagementType[]).map((type) => {
-          const isSelected = form.managementType === type
+        {(['WEG', 'MV'] as ManagementType[]).map((managementType) => {
+          const isSelected = form.managementType === managementType
           const buttonClass = isSelected
             ? 'bg-gray-900 text-white border-gray-900'
             : 'bg-white text-gray-700 border-gray-200 hover:border-gray-400'
 
           return (
             <button
-              key={type}
+              key={managementType}
               type="button"
-              onClick={() => setManagementType(type)}
+              onClick={() => setManagementType(managementType)}
               className={`px-5 py-2.5 rounded-lg text-sm font-semibold border transition-colors ${buttonClass}`}
             >
-              {type}
+              {managementType}
             </button>
           )
         })}
