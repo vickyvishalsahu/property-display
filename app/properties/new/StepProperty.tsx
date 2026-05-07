@@ -76,39 +76,43 @@ export const StepProperty = ({
         />
       </div>
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1.5">Manager</label>
-        <select
-          value={form.managerId}
-          onChange={(event) => setManagerId(event.target.value)}
-          required
-          className={inputClass}
-        >
-          <option value="">Select manager</option>
-          {MOCK_MANAGERS.map((manager) => (
-            <option key={manager.id} value={manager.id}>
-              {manager.name}
-            </option>
-          ))}
-        </select>
-      </div>
+      <HelpSection label="Administration" termId="administration">
+        <div className="border border-gray-100 rounded-xl p-4 flex flex-col gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">Manager</label>
+            <select
+              value={form.managerId}
+              onChange={(event) => setManagerId(event.target.value)}
+              required
+              className={inputClass}
+            >
+              <option value="">Select manager</option>
+              {MOCK_MANAGERS.map((manager) => (
+                <option key={manager.id} value={manager.id}>
+                  {manager.name}
+                </option>
+              ))}
+            </select>
+          </div>
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1.5">Accountant</label>
-        <select
-          value={form.accountantId}
-          onChange={(event) => setAccountantId(event.target.value)}
-          required
-          className={inputClass}
-        >
-          <option value="">Select accountant</option>
-          {MOCK_ACCOUNTANTS.map((accountant) => (
-            <option key={accountant.id} value={accountant.id}>
-              {accountant.name}
-            </option>
-          ))}
-        </select>
-      </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">Accountant</label>
+            <select
+              value={form.accountantId}
+              onChange={(event) => setAccountantId(event.target.value)}
+              required
+              className={inputClass}
+            >
+              <option value="">Select accountant</option>
+              {MOCK_ACCOUNTANTS.map((accountant) => (
+                <option key={accountant.id} value={accountant.id}>
+                  {accountant.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+      </HelpSection>
 
       <div className="flex justify-end pt-2">
         <button

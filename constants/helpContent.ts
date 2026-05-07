@@ -4,6 +4,10 @@ export type HelpEntry = {
 }
 
 export const HELP_CONTENT: Record<string, HelpEntry> = {
+  administration: {
+    title: 'Administration',
+    body: 'The manager oversees day-to-day operations of the property — maintenance, communication with owners or tenants, and compliance. The accountant handles financial reporting, cost allocation, and annual statements. Both roles are assigned per property.',
+  },
   'management-type': {
     title: 'Management type',
     body: 'WEG (Wohnungseigentümergemeinschaft) is a co-ownership structure where multiple owners share a building — each unit carries a co-ownership share used for cost allocation. MV (Mietverwaltung) is rental management on behalf of an owner — no shared ownership, no co-ownership shares.',
