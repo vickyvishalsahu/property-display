@@ -2,6 +2,7 @@
 
 import { useRef } from 'react'
 import { usePropertyExtraction } from '@/domains/propertyCreation/hooks/usePropertyExtraction'
+import type { PropertyImport } from '@/domains/shared/types/propertyImport'
 
 const renderSpinner = () => (
   <svg
@@ -20,8 +21,12 @@ const renderSpinner = () => (
   </svg>
 )
 
-export const PdfImport = () => {
-  const { state, extract, reset } = usePropertyExtraction()
+type Props = {
+  onSuccess?: (propertyImport: PropertyImport) => void
+}
+
+export const PdfImport = ({ onSuccess }: Props = {}) => {
+  const { state, extract, reset } = usePropertyExtraction({ onSuccess })
   const inputRef = useRef<HTMLInputElement>(null)
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {

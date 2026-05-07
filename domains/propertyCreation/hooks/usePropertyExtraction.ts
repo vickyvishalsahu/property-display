@@ -10,6 +10,10 @@ type ExtractionState =
   | { status: 'calling' }
   | { status: 'error'; reason: 'pdf' | 'ai' }
 
+type Options = {
+  onSuccess?: (propertyImport: PropertyImport) => void
+}
+
 const extractPdfText = async (file: File): Promise<string | null> => {
   try {
     const { getDocument, GlobalWorkerOptions } = await import('pdfjs-dist')
@@ -37,7 +41,7 @@ const extractPdfText = async (file: File): Promise<string | null> => {
   }
 }
 
-export const usePropertyExtraction = () => {
+export const usePropertyExtraction = (options: Options = {}) => {
   const [state, setState] = useState<ExtractionState>({ status: 'idle' })
   const router = useRouter()
 
@@ -64,6 +68,13 @@ export const usePropertyExtraction = () => {
     }
 
     const propertyImport: PropertyImport = await response.json()
+
+    if (options.onSuccess) {
+      setState({ status: 'idle' })
+      options.onSuccess(propertyImport)
+      return
+    }
+
     const key = crypto.randomUUID()
     sessionStorage.setItem(`property-import-${key}`, JSON.stringify(propertyImport))
     router.push(`/properties/new?import=${key}`)
