@@ -5,6 +5,7 @@ import { usePropertyForm } from '@/domains/propertyCreation/hooks/usePropertyFor
 import { StepProperty } from '@/domains/propertyCreation/components/StepProperty'
 import { StepBuildings } from '@/domains/propertyCreation/components/StepBuildings'
 import { StepReview } from '@/domains/propertyCreation/components/StepReview'
+import { DraftBanner } from '@/domains/propertyCreation/components/DraftBanner'
 
 const STEPS = ['Property', 'Buildings', 'Review']
 
@@ -24,10 +25,19 @@ const NewProperty = () => {
     removeUnit,
     updateUnit,
     submit,
+    pendingDraft,
+    activateDraft,
+    restoreDraft,
+    discardDraft,
   } = usePropertyForm()
 
   const goNext = () => setCurrentStep((previousStep) => Math.min(previousStep + 1, STEPS.length - 1))
   const goBack = () => setCurrentStep((previousStep) => Math.max(previousStep - 1, 0))
+
+  const handleStep0Next = () => {
+    activateDraft()
+    goNext()
+  }
 
   const renderStepper = () => (
     <div className="flex items-center gap-2 mb-8">
@@ -63,7 +73,7 @@ const NewProperty = () => {
           setName={setName}
           setManagerId={setManagerId}
           setAccountantId={setAccountantId}
-          onNext={goNext}
+          onNext={handleStep0Next}
         />
       )
     }
@@ -89,9 +99,21 @@ const NewProperty = () => {
     return <StepReview form={form} onBack={goBack} onSubmit={submit} />
   }
 
+  const renderDraftBanner = () => {
+    if (!pendingDraft) return null
+    return (
+      <DraftBanner
+        pendingDraft={pendingDraft}
+        onRestore={restoreDraft}
+        onDiscard={discardDraft}
+      />
+    )
+  }
+
   return (
     <div className="max-w-2xl">
       <h1 className="text-xl font-semibold text-gray-900 mb-8">Add Property</h1>
+      {renderDraftBanner()}
       {renderStepper()}
       {renderStep()}
     </div>
