@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { usePropertyForm } from '@/domains/propertyCreation/hooks/usePropertyForm'
 import { StepProperty } from '@/domains/propertyCreation/components/StepProperty'
 import { StepBuildings } from '@/domains/propertyCreation/components/StepBuildings'
@@ -9,7 +10,10 @@ import { DraftBanner } from '@/domains/propertyCreation/components/DraftBanner'
 
 const STEPS = ['Property', 'Buildings', 'Review']
 
-const NewProperty = () => {
+const NewPropertyContent = () => {
+  const searchParams = useSearchParams()
+  const initialDraftId = searchParams.get('draft') ?? undefined
+
   const [currentStep, setCurrentStep] = useState(0)
   const {
     form,
@@ -25,11 +29,11 @@ const NewProperty = () => {
     removeUnit,
     updateUnit,
     submit,
-    pendingDraft,
+    pendingDrafts,
     activateDraft,
     restoreDraft,
     discardDraft,
-  } = usePropertyForm()
+  } = usePropertyForm(initialDraftId)
 
   const goNext = () => setCurrentStep((previousStep) => Math.min(previousStep + 1, STEPS.length - 1))
   const goBack = () => setCurrentStep((previousStep) => Math.max(previousStep - 1, 0))
@@ -100,10 +104,12 @@ const NewProperty = () => {
   }
 
   const renderDraftBanner = () => {
-    if (!pendingDraft) return null
+    if (pendingDrafts.length === 0) return null
+    const newestDraft = [...pendingDrafts].sort((draftA, draftB) => draftB.savedAt - draftA.savedAt)[0]
     return (
       <DraftBanner
-        pendingDraft={pendingDraft}
+        draft={newestDraft}
+        totalDrafts={pendingDrafts.length}
         onRestore={restoreDraft}
         onDiscard={discardDraft}
       />
@@ -119,5 +125,11 @@ const NewProperty = () => {
     </div>
   )
 }
+
+const NewProperty = () => (
+  <Suspense>
+    <NewPropertyContent />
+  </Suspense>
+)
 
 export default NewProperty

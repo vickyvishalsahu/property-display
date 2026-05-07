@@ -5,6 +5,8 @@ import { MOCK_PROPERTIES } from '@/domains/shared/mock/properties'
 import { ALL_MOCK_STAFF } from '@/domains/shared/mock/staff'
 import { MANAGEMENT_TYPE_LABELS } from '@/domains/shared/constants/propertyTypes'
 import { useProperties } from '@/domains/shared/hooks/useProperties'
+import { useDraftList } from '@/domains/propertyCreation/hooks/useDraftList'
+import { DraftCard } from '@/domains/propertyCreation/components/DraftCard'
 import type { Property } from '@/domains/shared/types/property'
 
 const formatPropertyNumber = (id: string) => `#${id.replace('prop-', '')}`
@@ -58,7 +60,9 @@ const PropertyCard = ({ property }: { property: Property }) => {
 
 const Dashboard = () => {
   const { properties: userProperties } = useProperties()
-  const properties = [...MOCK_PROPERTIES, ...userProperties]
+  const { drafts, discardDraft } = useDraftList()
+  const allProperties = [...MOCK_PROPERTIES, ...userProperties]
+  const totalCount = drafts.length + allProperties.length
 
   const renderEmptyState = () => (
     <div className="flex flex-col items-center justify-center py-24 text-center gap-4">
@@ -76,7 +80,10 @@ const Dashboard = () => {
 
   const renderProperties = () => (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-      {properties.map((property) => (
+      {drafts.map((draft) => (
+        <DraftCard key={draft.id} draft={draft} onDiscard={discardDraft} />
+      ))}
+      {allProperties.map((property) => (
         <PropertyCard key={property.id} property={property} />
       ))}
     </div>
@@ -86,11 +93,11 @@ const Dashboard = () => {
     <div>
       <div className="mb-6">
         <h1 className="text-xl font-semibold text-gray-900">Properties</h1>
-        {properties.length > 0 && (
-          <p className="text-sm text-gray-500 mt-0.5">{properties.length} total</p>
+        {totalCount > 0 && (
+          <p className="text-sm text-gray-500 mt-0.5">{totalCount} total</p>
         )}
       </div>
-      {properties.length === 0 ? renderEmptyState() : renderProperties()}
+      {totalCount === 0 ? renderEmptyState() : renderProperties()}
     </div>
   )
 }
