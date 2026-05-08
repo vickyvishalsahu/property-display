@@ -28,7 +28,7 @@ const PropertyCard = ({ property }: { property: Property }) => {
 
   return (
     <Link
-      href={`/properties/${property.id}`}
+      href={`/property-creation/${property.id}`}
       className="bg-white border border-gray-200 rounded-xl p-5 flex flex-col gap-4 hover:shadow-md transition-shadow"
     >
       <div className="flex items-start justify-between gap-2">
@@ -71,7 +71,7 @@ const Dashboard = () => {
       <h2 className="text-lg font-semibold text-gray-900">No properties yet</h2>
       <p className="text-sm text-gray-500 max-w-xs">Add your first property to get started.</p>
       <Link
-        href="/properties/new"
+        href="/property-creation/new"
         className="mt-2 text-sm bg-gray-900 text-white px-5 py-2.5 rounded-lg hover:bg-gray-700 transition-colors"
       >
         Add Property

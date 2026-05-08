@@ -14,7 +14,7 @@ const ReviewStep = () => {
   const { form, isLoading, isPropertyNotFound, submit } = usePropertyForm(propertyId)
 
   const handleBack = () => {
-    router.push(`/properties/${propertyId}/buildings`)
+    router.push(`/property-creation/${propertyId}/buildings`)
   }
 
   const renderLoading = () => null

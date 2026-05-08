@@ -77,7 +77,7 @@ export const usePropertyExtraction = (options: Options = {}) => {
 
     const key = crypto.randomUUID()
     sessionStorage.setItem(`property-import-${key}`, JSON.stringify(propertyImport))
-    router.push(`/properties/new?import=${key}`)
+    router.push(`/property-creation/new?import=${key}`)
   }
 
   const reset = () => setState({ status: 'idle' })

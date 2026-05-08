@@ -3,10 +3,10 @@
 import { useParams, useRouter } from 'next/navigation'
 import { usePropertyForm } from '@/domains/propertyCreation/hooks/usePropertyForm'
 import { PropertyStepper } from '@/domains/propertyCreation/components/PropertyStepper'
-import { StepBuildings } from '@/domains/propertyCreation/components/StepBuildings'
+import { StepProperty } from '@/domains/propertyCreation/components/StepProperty'
 import { PropertyNotFound } from '@/domains/propertyCreation/components/PropertyNotFound'
 
-const BuildingsStep = () => {
+const EditProperty = () => {
   const params = useParams()
   const propertyId = params.id as string
   const router = useRouter()
@@ -15,21 +15,14 @@ const BuildingsStep = () => {
     form,
     isLoading,
     isPropertyNotFound,
-    addBuilding,
-    removeBuilding,
-    toggleSecondAddress,
-    setAddress,
-    addUnit,
-    removeUnit,
-    updateUnit,
+    setManagementType,
+    setName,
+    setManagerId,
+    setAccountantId,
   } = usePropertyForm(propertyId)
 
-  const handleBack = () => {
-    router.push(`/properties/${propertyId}`)
-  }
-
   const handleNext = () => {
-    router.push(`/properties/${propertyId}/review`)
+    router.push(`/property-creation/${propertyId}/buildings`)
   }
 
   const renderLoading = () => null
@@ -39,18 +32,13 @@ const BuildingsStep = () => {
   const renderForm = () => (
     <div className="max-w-2xl">
       <h1 className="text-xl font-semibold text-gray-900 mb-8">Edit Property</h1>
-      <PropertyStepper activeStep={1} />
-      <StepBuildings
-        managementType={form.managementType ?? 'MV'}
-        buildings={form.buildings}
-        addBuilding={addBuilding}
-        removeBuilding={removeBuilding}
-        toggleSecondAddress={toggleSecondAddress}
-        setAddress={setAddress}
-        addUnit={addUnit}
-        removeUnit={removeUnit}
-        updateUnit={updateUnit}
-        onBack={handleBack}
+      <PropertyStepper activeStep={0} />
+      <StepProperty
+        form={form}
+        setManagementType={setManagementType}
+        setName={setName}
+        setManagerId={setManagerId}
+        setAccountantId={setAccountantId}
         onNext={handleNext}
       />
     </div>
@@ -61,4 +49,4 @@ const BuildingsStep = () => {
   return renderForm()
 }
 
-export default BuildingsStep
+export default EditProperty

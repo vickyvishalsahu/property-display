@@ -29,7 +29,7 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => (
               Buena
             </Link>
             <Link
-              href="/properties/new"
+              href="/property-creation/new"
             className="text-sm bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors"
             >
             Add Property

@@ -11,7 +11,7 @@ type Props = {
 
 const getDraftRoute = (draft: Property): string => {
   const step1Complete = draft.name.trim() !== '' && draft.managerId !== '' && draft.accountantId !== ''
-  return step1Complete ? `/properties/${draft.id}/buildings` : `/properties/${draft.id}`
+  return step1Complete ? `/property-creation/${draft.id}/buildings` : `/property-creation/${draft.id}`
 }
 
 export const DraftCard = ({ draft, onDiscard }: Props) => {

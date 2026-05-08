@@ -41,7 +41,7 @@ const PropertyFormStep = ({ importOverrides }: PropertyFormStepProps) => {
   } = usePropertyForm(undefined, importOverrides)
 
   useEffect(() => {
-    if (propertyId) router.push(`/properties/${propertyId}/buildings`)
+    if (propertyId) router.push(`/property-creation/${propertyId}/buildings`)
   }, [propertyId])
 
   return (
