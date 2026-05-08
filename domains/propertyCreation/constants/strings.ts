@@ -16,6 +16,7 @@ export const PROPERTY_STEPPER = {
 
 export const STEP_MANAGEMENT_TYPE = {
   sectionLabel: 'Management type',
+  prompt: 'Select a management type to continue.',
   backButton: '← Back',
   confirmSwitchToMV: 'Switching to MV will clear co-ownership shares from all units. Continue?',
   confirmSwitchToWEG: 'Switching to WEG will require you to add co-ownership shares for each unit. Continue?',

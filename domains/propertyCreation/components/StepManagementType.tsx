@@ -1,7 +1,7 @@
 'use client'
 
+import Image from 'next/image'
 import type { ManagementType } from '@/domains/shared/types/property'
-import { HelpSection } from '@/domains/shared/components/HelpSection'
 import { STEP_MANAGEMENT_TYPE } from '@/domains/propertyCreation/constants/strings'
 
 type Props = {
@@ -10,57 +10,60 @@ type Props = {
   onBack: () => void
 }
 
-const TYPES: { type: ManagementType; title: string; subtitle: string; description: string }[] = [
+type TypeOption = {
+  type: ManagementType
+  title: string
+  description: string
+  image: string
+}
+
+const TYPES: TypeOption[] = [
   {
     type: 'WEG',
-    title: 'WEG',
-    subtitle: 'Wohnungseigentümergemeinschaft',
+    title: 'WEG Properties',
     description:
-      'Co-ownership structure. Multiple owners each hold a unit and share common areas. Each unit carries a co-ownership share (MEA) used for cost allocation.',
+      'Communities of owners who share responsibility for common areas. Legally complex, with voting and joint decisions.',
+    image: '/WEG.png',
   },
   {
     type: 'MV',
-    title: 'MV',
-    subtitle: 'Mietverwaltung',
+    title: 'MV Properties',
     description:
-      'Rental management on behalf of an owner. No shared ownership, no co-ownership shares.',
+      'Rental properties managed for landlords. Focused on tenant contracts, rent collection, and maintenance.',
+    image: '/MV.png',
   },
 ]
 
 export const StepManagementType = ({ selected, onSelect, onBack }: Props) => {
   const renderCards = () =>
-    TYPES.map(({ type, title, subtitle, description }) => {
+    TYPES.map((typeOption) => {
+      const { type, title, description, image } = typeOption
       const isSelected = selected === type
       const cardClass = isSelected
-        ? 'border-gray-900 bg-gray-900 text-white shadow-sm'
-        : 'border-gray-200 bg-white hover:border-gray-400 hover:shadow-sm'
+        ? 'shadow-2xl scale-[1.03] opacity-100'
+        : 'opacity-40 hover:opacity-65'
 
       return (
         <div
           key={type}
           onClick={() => onSelect(type)}
-          className={`rounded-xl border p-6 flex flex-col gap-1.5 cursor-pointer transition-all ${cardClass}`}
+          className={`rounded-xl overflow-hidden cursor-pointer transition-all ${cardClass}`}
         >
-          <div className="flex items-baseline gap-2">
-            <span className={`text-base font-semibold ${isSelected ? 'text-white' : 'text-gray-900'}`}>
-              {title}
-            </span>
-            <span className={`text-xs ${isSelected ? 'text-gray-300' : 'text-gray-400'}`}>
-              {subtitle}
-            </span>
+          <div className="relative aspect-3/4">
+            <Image src={image} alt={title} fill sizes="30vw" className="object-cover" />
           </div>
-          <p className={`text-sm ${isSelected ? 'text-gray-300' : 'text-gray-500'}`}>
-            {description}
-          </p>
+          <div className="py-2 px-4 flex flex-col gap-1">
+            <p className="text-gray-900 font-semibold text-sm">{title}</p>
+            <p className="text-gray-500 text-xs leading-relaxed">{description}</p>
+          </div>
         </div>
       )
     })
 
   return (
     <div className="flex flex-col gap-6">
-      <HelpSection label={STEP_MANAGEMENT_TYPE.sectionLabel} termId="management-type">
-        <div className="flex flex-col gap-3">{renderCards()}</div>
-      </HelpSection>
+      <p className="text-sm text-gray-500 mb-4">{STEP_MANAGEMENT_TYPE.prompt}</p>
+      <div className="grid grid-cols-2 gap-6">{renderCards()}</div>
 
       <button
         type="button"
