@@ -15,7 +15,11 @@ export const useProperties = () => {
     if (stored) {
       const storedProperties: Property[] = JSON.parse(stored)
       const storedIds = new Set(storedProperties.map((property) => property.id))
-      setProperties([...MOCK_PROPERTIES.filter((property) => !storedIds.has(property.id)), ...storedProperties])
+      const mockDemoIds = new Set(MOCK_PROPERTIES.filter((property) => property.isDemo).map((property) => property.id))
+      const mergedStored = storedProperties.map((property) =>
+        mockDemoIds.has(property.id) ? { ...property, isDemo: true } : property
+      )
+      setProperties([...MOCK_PROPERTIES.filter((property) => !storedIds.has(property.id)), ...mergedStored])
     }
     setIsLoaded(true)
   }, [])

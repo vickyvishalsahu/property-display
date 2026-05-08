@@ -29,19 +29,28 @@ const PropertyCard = ({ property }: { property: Property }) => {
   const dotColor = MANAGEMENT_TYPE_DOT[property.managementType]
   const textColor = MANAGEMENT_TYPE_TEXT[property.managementType]
 
+  const renderDemoBadge = () => (
+    <span className="shrink-0 text-xs font-semibold px-2.5 py-1 rounded-full bg-gray-100 text-gray-500">
+      Demo
+    </span>
+  )
+
   return (
     <Link
       href={`/property-creation/${property.id}`}
       className="bg-white border border-gray-200 rounded-xl p-5 flex flex-col gap-4 hover:border-gray-300 hover:shadow-md transition-all"
     >
-      <div className="flex flex-col gap-1">
-        <div className="flex items-center gap-1.5">
-          <span className={`w-1.5 h-1.5 rounded-full ${dotColor}`} />
-          <span className={`text-xs font-medium ${textColor}`}>
-            {MANAGEMENT_TYPE_LABELS[property.managementType]}
-          </span>
+      <div className="flex items-start justify-between gap-2">
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-1.5">
+            <span className={`w-1.5 h-1.5 rounded-full ${dotColor}`} />
+            <span className={`text-xs font-medium ${textColor}`}>
+              {MANAGEMENT_TYPE_LABELS[property.managementType]}
+            </span>
+          </div>
+          <h2 className="font-semibold text-gray-900 text-base leading-snug">{property.name}</h2>
         </div>
-        <h2 className="font-semibold text-gray-900 text-base leading-snug">{property.name}</h2>
+        {property.isDemo && renderDemoBadge()}
       </div>
 
       <div className="flex items-center gap-3 text-sm text-gray-500">

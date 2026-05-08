@@ -3,6 +3,7 @@ import type { WEGProperty, MVProperty } from '@/domains/shared/types/property'
 const wegProperty1: WEGProperty = {
   id: 'prop-001',
   isDraft: false,
+  isDemo: true,
   name: 'Togostraße Eigentümergemeinschaft',
   managementType: 'WEG',
   managerId: 'mgr-1',
@@ -25,6 +26,7 @@ const wegProperty1: WEGProperty = {
 const wegProperty2: WEGProperty = {
   id: 'prop-002',
   isDraft: false,
+  isDemo: true,
   name: 'Kameruner Eck WEG',
   managementType: 'WEG',
   managerId: 'mgr-2',
@@ -47,6 +49,7 @@ const wegProperty2: WEGProperty = {
 const mvProperty1: MVProperty = {
   id: 'prop-003',
   isDraft: false,
+  isDemo: true,
   name: 'Schönhauser Allee Rentals',
   managementType: 'MV',
   managerId: 'mgr-1',
@@ -69,6 +72,7 @@ const mvProperty1: MVProperty = {
 const mvProperty2: MVProperty = {
   id: 'prop-004',
   isDraft: false,
+  isDemo: true,
   name: 'Prenzlauer Wohnpark',
   managementType: 'MV',
   managerId: 'mgr-2',
