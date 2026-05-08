@@ -48,6 +48,11 @@ const PropertyFormStep = ({ importOverrides, onBack }: PropertyFormStepProps) =>
     if (propertyId) router.push(`/property-creation/${propertyId}/buildings`)
   }, [propertyId])
 
+  const handleActivateDraft = () => {
+    toast.success(NEW_PROPERTY_PAGE.draftSaved)
+    activateDraft()
+  }
+
   return (
     <>
       <PropertyStepper activeStep={0} />
@@ -57,7 +62,7 @@ const PropertyFormStep = ({ importOverrides, onBack }: PropertyFormStepProps) =>
         setManagerId={setManagerId}
         setAccountantId={setAccountantId}
         onBack={onBack}
-        onNext={activateDraft}
+        onNext={handleActivateDraft}
       />
     </>
   )

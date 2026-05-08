@@ -6,6 +6,7 @@ import { PropertyStepper } from '@/domains/propertyCreation/components/PropertyS
 import { getStepStates } from '@/domains/propertyCreation/utils/stepCompletion'
 import { StepBuildings } from '@/domains/propertyCreation/components/StepBuildings'
 import { PropertyNotFound } from '@/domains/propertyCreation/components/PropertyNotFound'
+import { AutoSaveIndicator } from '@/domains/propertyCreation/components/AutoSaveIndicator'
 import { PROPERTY_PAGES } from '@/domains/propertyCreation/constants/strings'
 
 const BuildingsStep = () => {
@@ -57,6 +58,7 @@ const BuildingsStep = () => {
         onBack={handleBack}
         onNext={handleNext}
       />
+      <AutoSaveIndicator />
     </div>
   )
 

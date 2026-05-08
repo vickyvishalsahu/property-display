@@ -8,6 +8,7 @@ import { getStepStates } from '@/domains/propertyCreation/utils/stepCompletion'
 import { StepProperty } from '@/domains/propertyCreation/components/StepProperty'
 import { StepManagementType } from '@/domains/propertyCreation/components/StepManagementType'
 import { PropertyNotFound } from '@/domains/propertyCreation/components/PropertyNotFound'
+import { AutoSaveIndicator } from '@/domains/propertyCreation/components/AutoSaveIndicator'
 import { STEP_MANAGEMENT_TYPE, PROPERTY_PAGES } from '@/domains/propertyCreation/constants/strings'
 import type { ManagementType } from '@/domains/shared/types/property'
 
@@ -95,6 +96,7 @@ const EditProperty = () => {
     <div className="max-w-2xl">
       <h1 className="text-xl font-semibold text-gray-900 mb-8">{PROPERTY_PAGES.editHeading}</h1>
       {mode === 'type' ? renderTypeStep() : renderForm()}
+      <AutoSaveIndicator />
     </div>
   )
 }

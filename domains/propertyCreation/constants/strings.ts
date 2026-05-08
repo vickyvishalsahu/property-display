@@ -1,6 +1,7 @@
 export const PROPERTY_PAGES = {
   addHeading: 'Add Property',
   editHeading: 'Edit Property',
+  autoSaved: 'Property is auto saved as we go',
 }
 
 export const DRAFT_CARD = {
@@ -85,4 +86,5 @@ export const NEW_PROPERTY_PAGE = {
   importTitle: 'Import from PDF',
   importDescription: "Upload a property document and we'll extract what we can. You'll review and complete the rest.",
   partialImportMessage: "We couldn't extract all the details — review and complete the missing fields.",
+  draftSaved: 'Draft saved — your progress is safe.',
 }
