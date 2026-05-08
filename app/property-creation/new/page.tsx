@@ -6,9 +6,11 @@ import { usePropertyForm } from '@/domains/propertyCreation/hooks/usePropertyFor
 import { formFromImport } from '@/domains/propertyCreation/hooks/formFromImport'
 import { PropertyStepper } from '@/domains/propertyCreation/components/PropertyStepper'
 import { StepProperty } from '@/domains/propertyCreation/components/StepProperty'
+import { StepManagementType } from '@/domains/propertyCreation/components/StepManagementType'
 import { PdfImport } from '@/domains/extraction/components/PdfImport'
 import type { PropertyImport } from '@/domains/shared/types/propertyImport'
 import type { FormState } from '@/domains/propertyCreation/types/form'
+import type { ManagementType } from '@/domains/shared/types/property'
 
 const resolveImportOverrides = (importKey: string | null): Partial<FormState> | undefined => {
   if (!importKey) return undefined
@@ -33,7 +35,6 @@ const PropertyFormStep = ({ importOverrides }: PropertyFormStepProps) => {
   const {
     form,
     propertyId,
-    setManagementType,
     setName,
     setManagerId,
     setAccountantId,
@@ -49,7 +50,6 @@ const PropertyFormStep = ({ importOverrides }: PropertyFormStepProps) => {
       <PropertyStepper activeStep={0} />
       <StepProperty
         form={form}
-        setManagementType={setManagementType}
         setName={setName}
         setManagerId={setManagerId}
         setAccountantId={setAccountantId}
@@ -90,20 +90,32 @@ const NewProperty = () => {
   const searchParams = useSearchParams()
   const importKey = searchParams.get('import')
 
-  const [mode, setMode] = useState<'select' | 'form'>(importKey ? 'form' : 'select')
+  const [mode, setMode] = useState<'select' | 'type' | 'form'>(importKey ? 'type' : 'select')
   const [importOverrides, setImportOverrides] = useState<Partial<FormState> | undefined>(
     () => resolveImportOverrides(importKey)
   )
 
-  const handleManual = () => setMode('form')
+  const handleManual = () => setMode('type')
 
   const handleImport = (propertyImport: PropertyImport) => {
     setImportOverrides(formFromImport(propertyImport))
+    setMode('type')
+  }
+
+  const handleTypeSelect = (managementType: ManagementType) => {
+    setImportOverrides((previous) => ({ ...(previous ?? {}), managementType }))
     setMode('form')
   }
 
   const renderContent = () => {
     if (mode === 'form') return <PropertyFormStep importOverrides={importOverrides} />
+    if (mode === 'type') return (
+      <StepManagementType
+        selected={importOverrides?.managementType ?? null}
+        onSelect={handleTypeSelect}
+        onBack={() => setMode('select')}
+      />
+    )
     return <MethodSelect onManual={handleManual} onImport={handleImport} />
   }
 

@@ -1,14 +1,12 @@
 'use client'
 
 import { useState } from 'react'
-import type { ManagementType } from '@/domains/shared/types/property'
 import { MOCK_MANAGERS, MOCK_ACCOUNTANTS } from '@/domains/shared/mock/staff'
 import { HelpSection } from '@/domains/shared/components/HelpSection'
 import type { FormState } from '@/domains/propertyCreation/types/form'
 
 type Props = {
   form: FormState
-  setManagementType: (managementType: ManagementType) => void
   setName: (name: string) => void
   setManagerId: (id: string) => void
   setAccountantId: (id: string) => void
@@ -27,7 +25,6 @@ const renderFieldError = (message = 'Required') => (
 
 export const StepProperty = ({
   form,
-  setManagementType,
   setName,
   setManagerId,
   setAccountantId,
@@ -36,12 +33,10 @@ export const StepProperty = ({
   const [submitted, setSubmitted] = useState(false)
 
   const canProceed =
-    !!form.managementType &&
     form.name.trim() !== '' &&
     form.managerId !== '' &&
     form.accountantId !== ''
 
-  const typeError = submitted && !form.managementType
   const nameError = submitted && form.name.trim() === ''
   const managerError = submitted && form.managerId === ''
   const accountantError = submitted && form.accountantId === ''
@@ -55,38 +50,8 @@ export const StepProperty = ({
     onNext()
   }
 
-  const renderTypeToggle = () => (
-    <HelpSection label="Management type" termId="management-type">
-      <div className="flex flex-col gap-1.5">
-        <div className="flex gap-3">
-          {(['WEG', 'MV'] as ManagementType[]).map((managementType) => {
-            const isSelected = form.managementType === managementType
-            const buttonClass = isSelected
-              ? 'bg-gray-900 text-white border-gray-900'
-              : typeError
-                ? 'bg-white text-gray-700 border-red-300 hover:border-red-400'
-                : 'bg-white text-gray-700 border-gray-200 hover:border-gray-400'
-
-            return (
-              <button
-                key={managementType}
-                type="button"
-                onClick={() => setManagementType(managementType)}
-                className={`px-5 py-2.5 rounded-lg text-sm font-semibold border transition-colors ${buttonClass}`}
-              >
-                {managementType}
-              </button>
-            )
-          })}
-        </div>
-        {typeError && renderFieldError('Select a management type to continue')}
-      </div>
-    </HelpSection>
-  )
-
   return (
     <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-6">
-      {renderTypeToggle()}
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1.5">Property name</label>

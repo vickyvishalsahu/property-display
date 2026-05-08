@@ -15,7 +15,6 @@ const EditProperty = () => {
     form,
     isLoading,
     isPropertyNotFound,
-    setManagementType,
     setName,
     setManagerId,
     setAccountantId,
@@ -35,7 +34,6 @@ const EditProperty = () => {
       <PropertyStepper activeStep={0} />
       <StepProperty
         form={form}
-        setManagementType={setManagementType}
         setName={setName}
         setManagerId={setManagerId}
         setAccountantId={setAccountantId}
