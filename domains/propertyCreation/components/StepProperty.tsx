@@ -13,6 +13,7 @@ type Props = {
   setAccountantId: (id: string) => void
   onBack?: () => void
   onNext: () => void
+  eagerValidation?: boolean
 }
 
 const baseInputClass =
@@ -32,14 +33,16 @@ export const StepProperty = ({
   setAccountantId,
   onBack,
   onNext,
+  eagerValidation,
 }: Props) => {
   const [submitted, setSubmitted] = useState(false)
 
   const canProceed = getPropertyStepState(form) === 'complete'
 
-  const nameError = submitted && form.name.trim() === ''
-  const managerError = submitted && form.managerId === ''
-  const accountantError = submitted && form.accountantId === ''
+  const showErrors = submitted || !!eagerValidation
+  const nameError = showErrors && form.name.trim() === ''
+  const managerError = showErrors && form.managerId === ''
+  const accountantError = showErrors && form.accountantId === ''
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault()

@@ -51,9 +51,16 @@ export const usePropertyForm = (
 
   const isLoading = !initialized
   const isPropertyNotFound = initialized && !!initialPropertyId && !propertyId
+  const isCompleted = initialized && !originalIsDraft
+
+  const propertyStepIsValid =
+    form.name.trim() !== '' &&
+    form.managerId !== '' &&
+    form.accountantId !== ''
 
   useEffect(() => {
     if (!propertyId) return
+    if (isCompleted && !propertyStepIsValid) return
     upsertProperty(buildProperty(form, propertyId, originalIsDraft))
   }, [form, propertyId])
 
@@ -183,6 +190,7 @@ export const usePropertyForm = (
     propertyId,
     isLoading,
     isPropertyNotFound,
+    isCompleted,
     setManagementType,
     setName,
     setManagerId,

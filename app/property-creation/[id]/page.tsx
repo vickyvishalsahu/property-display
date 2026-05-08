@@ -21,6 +21,7 @@ const EditProperty = () => {
     form,
     isLoading,
     isPropertyNotFound,
+    isCompleted,
     setManagementType,
     setName,
     setManagerId,
@@ -82,6 +83,7 @@ const EditProperty = () => {
         setAccountantId={setAccountantId}
         onBack={() => setMode('type')}
         onNext={handleNext}
+        eagerValidation={isCompleted}
       />
     </>
   )

@@ -22,7 +22,7 @@ export const DraftCard = ({ draft, onDiscard }: Props) => {
     <div className="bg-amber-50 border border-amber-200 rounded-xl p-5 flex flex-col gap-4">
       <div className="flex items-start justify-between gap-2">
         <div className="flex flex-col gap-1">
-          <span className="text-xs text-amber-600 font-mono">{managementLabel}</span>
+          <span className="text-xs font-medium text-amber-700">{managementLabel}</span>
           <h2 className="font-semibold text-gray-900 text-base leading-snug">{displayName}</h2>
         </div>
         <span className="shrink-0 text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-200 text-amber-900">
