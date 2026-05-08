@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { ALL_MOCK_STAFF } from '@/domains/shared/mock/staff'
 import { MANAGEMENT_TYPE_LABELS } from '@/domains/shared/constants/propertyTypes'
+import { DASHBOARD, NAVIGATION } from '@/domains/shared/constants/strings'
 import { useProperties } from '@/domains/shared/hooks/useProperties'
 import { DraftCard } from '@/domains/propertyCreation/components/DraftCard'
 import { SkeletonLoading } from '@/domains/shared/components/SkeletonLoading'
@@ -48,7 +49,7 @@ const PropertyCard = ({ property }: { property: Property }) => {
 
   const renderDemoBadge = () => (
     <span className="shrink-0 text-xs font-semibold px-2.5 py-1 rounded-full bg-gray-100 text-gray-500">
-      Demo
+      {DASHBOARD.demoBadge}
     </span>
   )
 
@@ -71,19 +72,13 @@ const PropertyCard = ({ property }: { property: Property }) => {
       </div>
 
       <div className="flex items-center gap-3 text-sm text-gray-500">
-        <span>
-          <span className="font-medium text-gray-900">{property.buildings.length}</span>{' '}
-          {property.buildings.length === 1 ? 'building' : 'buildings'}
-        </span>
+        <span>{DASHBOARD.buildingCount(property.buildings.length)}</span>
         <span className="text-gray-300">·</span>
-        <span>
-          <span className="font-medium text-gray-900">{totalUnits}</span>{' '}
-          {totalUnits === 1 ? 'unit' : 'units'}
-        </span>
+        <span>{DASHBOARD.unitCount(totalUnits)}</span>
       </div>
 
       <div className="pt-1 border-t border-gray-100 text-xs text-gray-400">
-        Manager: <span className="font-medium text-gray-600">{managerName}</span>
+        {DASHBOARD.managerLabel}: <span className="font-medium text-gray-600">{managerName}</span>
       </div>
     </Link>
   )
@@ -127,14 +122,14 @@ const Dashboard = () => {
         type="text"
         value={searchQuery}
         onChange={(event) => setSearchQuery(event.target.value)}
-        placeholder="Search by name, address or manager…"
+        placeholder={DASHBOARD.searchPlaceholder}
         className="w-full max-w-sm border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900"
       />
     </div>
   )
 
   const renderNoResults = () => (
-    <p className="text-sm text-gray-400 py-10 text-center">No properties match "{searchQuery}".</p>
+    <p className="text-sm text-gray-400 py-10 text-center">{DASHBOARD.noResults(searchQuery)}</p>
   )
 
   const renderContent = () => {
@@ -151,13 +146,13 @@ const Dashboard = () => {
   const renderEmptyState = () => (
     <div className="flex flex-col items-center justify-center py-24 text-center gap-4">
       <div className="text-4xl">🏢</div>
-      <h2 className="text-lg font-semibold text-gray-900">No properties yet</h2>
-      <p className="text-sm text-gray-500 max-w-xs">Add your first property to get started.</p>
+      <h2 className="text-lg font-semibold text-gray-900">{DASHBOARD.emptyHeading}</h2>
+      <p className="text-sm text-gray-500 max-w-xs">{DASHBOARD.emptyDescription}</p>
       <Link
         href="/property-creation/new"
         className="mt-2 text-sm bg-gray-900 text-white px-5 py-2.5 rounded-lg hover:bg-gray-700 transition-colors"
       >
-        Add Property
+        {NAVIGATION.addProperty}
       </Link>
     </div>
   )
@@ -176,7 +171,7 @@ const Dashboard = () => {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-xl font-semibold text-gray-900">Properties</h1>
+        <h1 className="text-xl font-semibold text-gray-900">{DASHBOARD.title}</h1>
       </div>
       {renderContent()}
     </div>

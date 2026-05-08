@@ -2,6 +2,7 @@
 
 import type { ManagementType } from '@/domains/shared/types/property'
 import { HelpSection } from '@/domains/shared/components/HelpSection'
+import { STEP_MANAGEMENT_TYPE } from '@/domains/propertyCreation/constants/strings'
 
 type Props = {
   selected: ManagementType | null
@@ -57,7 +58,7 @@ export const StepManagementType = ({ selected, onSelect, onBack }: Props) => {
 
   return (
     <div className="flex flex-col gap-6">
-      <HelpSection label="Management type" termId="management-type">
+      <HelpSection label={STEP_MANAGEMENT_TYPE.sectionLabel} termId="management-type">
         <div className="flex flex-col gap-3">{renderCards()}</div>
       </HelpSection>
 
@@ -66,7 +67,7 @@ export const StepManagementType = ({ selected, onSelect, onBack }: Props) => {
         onClick={onBack}
         className="text-sm text-gray-400 hover:text-gray-600 text-left"
       >
-        ← Back
+        {STEP_MANAGEMENT_TYPE.backButton}
       </button>
     </div>
   )

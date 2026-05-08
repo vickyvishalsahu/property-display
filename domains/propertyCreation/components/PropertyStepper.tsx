@@ -2,8 +2,7 @@
 
 import type { CSSProperties } from 'react'
 import type { StepState } from '@/domains/propertyCreation/utils/stepCompletion'
-
-const STEPS = ['Property', 'Buildings', 'Review']
+import { PROPERTY_STEPPER } from '@/domains/propertyCreation/constants/strings'
 
 type Props = {
   activeStep: 0 | 1 | 2
@@ -18,14 +17,14 @@ const getRingStyle = (state: StepState): CSSProperties =>
 
 export const PropertyStepper = ({ activeStep, stepStates = [] }: Props) => (
   <div className="flex items-center gap-2 mb-8">
-    {STEPS.map((stepLabel, stepIndex) => {
+    {PROPERTY_STEPPER.steps.map((stepLabel, stepIndex) => {
       const isActive = stepIndex === activeStep
       const isComplete = stepIndex < activeStep
       const state = stepStates[stepIndex] ?? 'empty'
 
       const dotClass = isComplete || isActive ? 'bg-gray-900 text-white' : 'bg-gray-200 text-gray-500'
       const labelClass = isActive ? 'font-semibold text-gray-900' : 'text-gray-400'
-      const showSeparator = stepIndex < STEPS.length - 1
+      const showSeparator = stepIndex < PROPERTY_STEPPER.steps.length - 1
 
       return (
         <div key={stepLabel} className="flex items-center gap-2">

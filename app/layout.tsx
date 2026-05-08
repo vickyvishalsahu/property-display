@@ -5,6 +5,7 @@ import { Toaster } from 'sonner'
 import { HelpPanelProvider } from '@/domains/shared/context/HelpPanelContext'
 import { HelpPanel } from '@/domains/shared/components/HelpPanel'
 import { GoogleMapsProvider } from '@/domains/shared/providers/GoogleMapsProvider'
+import { NAVIGATION } from '@/domains/shared/constants/strings'
 import './globals.css'
 
 const inter = Inter({
@@ -14,8 +15,8 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: { template: 'Buena | %s', default: 'Buena' },
-  description: 'Property management, simplified.',
+  title: { template: NAVIGATION.metaTitleTemplate, default: NAVIGATION.metaDefaultTitle },
+  description: NAVIGATION.metaDescription,
   icons: { icon: '/buena_logo.png' },
 }
 
@@ -27,13 +28,13 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => (
         <nav className="bg-white border-b border-gray-200">
           <div className="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between">
             <Link href="/" className="font-semibold text-lg tracking-tight">
-              Buena
+              {NAVIGATION.brand}
             </Link>
             <Link
               href="/property-creation/new"
             className="text-sm bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors"
             >
-            Add Property
+            {NAVIGATION.addProperty}
             </Link>
           </div>
         </nav>

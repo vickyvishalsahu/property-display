@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import type { Property } from '@/domains/shared/types/property'
 import { MANAGEMENT_TYPE_LABELS } from '@/domains/shared/constants/propertyTypes'
+import { DRAFT_CARD } from '@/domains/propertyCreation/constants/strings'
 
 type Props = {
   draft: Property
@@ -15,7 +16,7 @@ const getDraftRoute = (draft: Property): string => {
 }
 
 export const DraftCard = ({ draft, onDiscard }: Props) => {
-  const displayName = draft.name || 'Untitled draft'
+  const displayName = draft.name || DRAFT_CARD.untitledDraft
   const managementLabel = MANAGEMENT_TYPE_LABELS[draft.managementType]
 
   return (
@@ -26,7 +27,7 @@ export const DraftCard = ({ draft, onDiscard }: Props) => {
           <h2 className="font-semibold text-gray-900 text-base leading-snug">{displayName}</h2>
         </div>
         <span className="shrink-0 text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-200 text-amber-900">
-          Draft
+          {DRAFT_CARD.badge}
         </span>
       </div>
 
@@ -35,14 +36,14 @@ export const DraftCard = ({ draft, onDiscard }: Props) => {
           href={getDraftRoute(draft)}
           className="text-sm font-medium text-amber-900 hover:text-amber-700"
         >
-          Continue →
+          {DRAFT_CARD.continue}
         </Link>
         <button
           type="button"
           onClick={() => onDiscard(draft.id)}
           className="text-xs text-amber-600 hover:text-amber-900"
         >
-          Discard
+          {DRAFT_CARD.discard}
         </button>
       </div>
     </div>

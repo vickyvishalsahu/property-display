@@ -13,6 +13,8 @@ export const DASHBOARD = {
   unitCount: (count: number) => `${count} ${count === 1 ? 'unit' : 'units'}`,
   managerLabel: 'Manager',
   demoBadge: 'Demo',
+  searchPlaceholder: 'Search by name, address or manager…',
+  noResults: (query: string) => `No properties match "${query}".`,
   emptyHeading: 'No properties yet',
   emptyDescription: 'Add your first property to get started.',
 }

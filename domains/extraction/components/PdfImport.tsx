@@ -2,6 +2,7 @@
 
 import { useRef } from 'react'
 import { usePropertyExtraction } from '@/domains/extraction/hooks/usePropertyExtraction'
+import { PDF_IMPORT } from '@/domains/extraction/constants/strings'
 import type { PropertyImport } from '@/domains/shared/types/propertyImport'
 
 const renderSpinner = () => (
@@ -58,12 +59,12 @@ export const PdfImport = ({ onSuccess }: Props = {}) => {
           d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z"
         />
       </svg>
-      Import from PDF
+      {PDF_IMPORT.buttonLabel}
     </button>
   )
 
   const renderLoading = () => {
-    const label = state.status === 'extracting' ? 'Reading PDF…' : 'Extracting property data…'
+    const label = state.status === 'extracting' ? PDF_IMPORT.readingPdf : PDF_IMPORT.extractingData
     return (
       <div className="flex items-center gap-2 text-sm text-gray-500 px-1">
         {renderSpinner()}
@@ -75,8 +76,8 @@ export const PdfImport = ({ onSuccess }: Props = {}) => {
   const renderError = () => {
     const message =
       state.status === 'error' && state.reason === 'pdf'
-        ? 'Could not read this PDF. Make sure it contains selectable text and try again.'
-        : 'Could not extract property data. Try again or add the property manually.'
+        ? PDF_IMPORT.errorPdf
+        : PDF_IMPORT.errorExtraction
 
     return (
       <div className="flex flex-col gap-1">
@@ -86,7 +87,7 @@ export const PdfImport = ({ onSuccess }: Props = {}) => {
           onClick={reset}
           className="text-xs text-gray-500 underline hover:text-gray-700 text-left"
         >
-          Try again
+          {PDF_IMPORT.tryAgain}
         </button>
       </div>
     )

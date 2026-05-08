@@ -6,6 +6,7 @@ import { PropertyStepper } from '@/domains/propertyCreation/components/PropertyS
 import { getStepStates } from '@/domains/propertyCreation/utils/stepCompletion'
 import { StepBuildings } from '@/domains/propertyCreation/components/StepBuildings'
 import { PropertyNotFound } from '@/domains/propertyCreation/components/PropertyNotFound'
+import { PROPERTY_PAGES } from '@/domains/propertyCreation/constants/strings'
 
 const BuildingsStep = () => {
   const params = useParams()
@@ -41,7 +42,7 @@ const BuildingsStep = () => {
 
   const renderForm = () => (
     <div className="max-w-2xl">
-      <h1 className="text-xl font-semibold text-gray-900 mb-8">Edit Property</h1>
+      <h1 className="text-xl font-semibold text-gray-900 mb-8">{PROPERTY_PAGES.editHeading}</h1>
       <PropertyStepper activeStep={1} stepStates={stepStates} />
       <StepBuildings
         managementType={form.managementType ?? 'MV'}

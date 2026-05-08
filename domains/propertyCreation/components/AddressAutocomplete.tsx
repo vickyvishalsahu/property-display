@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { usePlaces, getAddressObject } from '@/domains/shared/hooks/usePlaces'
 import type { FormAddress } from '@/domains/propertyCreation/types/form'
+import { ADDRESS_AUTOCOMPLETE } from '@/domains/propertyCreation/constants/strings'
 
 type Props = {
   address: FormAddress
@@ -102,7 +103,7 @@ export const AddressAutocomplete = ({ address, onSelect }: Props) => {
     if (!showNumberHint) return null
     return (
       <p className="text-xs text-amber-600 mt-1.5">
-        No house number found — add it after the street name (e.g. Togostraße 75)
+        {ADDRESS_AUTOCOMPLETE.noHouseNumberHint}
       </p>
     )
   }
@@ -113,7 +114,7 @@ export const AddressAutocomplete = ({ address, onSelect }: Props) => {
     if (isLoading) {
       return (
         <div className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-md py-2 px-3">
-          <p className="text-sm text-gray-400">Searching…</p>
+          <p className="text-sm text-gray-400">{ADDRESS_AUTOCOMPLETE.searching}</p>
         </div>
       )
     }
@@ -145,7 +146,7 @@ export const AddressAutocomplete = ({ address, onSelect }: Props) => {
         value={query}
         onChange={handleInputChange}
         onFocus={handleFocus}
-        placeholder="e.g. Togostraße 75, Berlin"
+        placeholder={ADDRESS_AUTOCOMPLETE.placeholder}
         className={inputClass}
         autoComplete="off"
       />

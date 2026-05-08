@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { BuildingForm } from './BuildingForm'
 import type { FormBuilding, FormAddress, FormUnit } from '@/domains/propertyCreation/types/form'
+import { STEP_BUILDINGS } from '@/domains/propertyCreation/constants/strings'
 
 type Props = {
   managementType: 'WEG' | 'MV'
@@ -90,7 +91,7 @@ export const StepBuildings = ({
         onClick={addBuilding}
         className="text-sm text-gray-400 hover:text-gray-700 text-left py-2"
       >
-        + Add building
+        {STEP_BUILDINGS.addBuilding}
       </button>
 
       <div className="flex justify-between pt-2">
@@ -99,13 +100,13 @@ export const StepBuildings = ({
           onClick={onBack}
           className="text-sm text-gray-500 hover:text-gray-700"
         >
-          ← Back
+          {STEP_BUILDINGS.backButton}
         </button>
         <button
           type="submit"
           className="bg-gray-900 text-white text-sm px-5 py-2.5 rounded-lg hover:bg-gray-700 transition-colors"
         >
-          Next
+          {STEP_BUILDINGS.nextButton}
         </button>
       </div>
     </form>

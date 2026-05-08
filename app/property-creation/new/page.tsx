@@ -9,6 +9,7 @@ import { PropertyStepper } from '@/domains/propertyCreation/components/PropertyS
 import { StepProperty } from '@/domains/propertyCreation/components/StepProperty'
 import { StepManagementType } from '@/domains/propertyCreation/components/StepManagementType'
 import { PdfImport } from '@/domains/extraction/components/PdfImport'
+import { NEW_PROPERTY_PAGE, PROPERTY_PAGES } from '@/domains/propertyCreation/constants/strings'
 import type { PropertyImport } from '@/domains/shared/types/propertyImport'
 import type { FormState } from '@/domains/propertyCreation/types/form'
 import type { ManagementType } from '@/domains/shared/types/property'
@@ -73,23 +74,21 @@ const MethodSelect = ({ onManual, onImport }: MethodSelectProps) => (
       onClick={onManual}
       className="bg-white border border-gray-200 rounded-xl p-6 flex flex-col gap-2 cursor-pointer hover:border-gray-400 hover:shadow-sm transition-all"
     >
-      <p className="text-sm font-semibold text-gray-900">Enter manually</p>
-      <p className="text-sm text-gray-500">Fill in the property details step by step.</p>
+      <p className="text-sm font-semibold text-gray-900">{NEW_PROPERTY_PAGE.manualTitle}</p>
+      <p className="text-sm text-gray-500">{NEW_PROPERTY_PAGE.manualDescription}</p>
     </div>
 
     <div className="bg-white border border-gray-200 rounded-xl p-6 flex flex-col gap-3">
       <div className="flex flex-col gap-1">
-        <p className="text-sm font-semibold text-gray-900">Import from PDF</p>
-        <p className="text-sm text-gray-500">
-          Upload a property document and we'll extract what we can. You'll review and complete the rest.
-        </p>
+        <p className="text-sm font-semibold text-gray-900">{NEW_PROPERTY_PAGE.importTitle}</p>
+        <p className="text-sm text-gray-500">{NEW_PROPERTY_PAGE.importDescription}</p>
       </div>
       <PdfImport onSuccess={onImport} />
     </div>
   </div>
 )
 
-const PARTIAL_IMPORT_MESSAGE = "We couldn't extract all the details — review and complete the missing fields."
+const PARTIAL_IMPORT_MESSAGE = NEW_PROPERTY_PAGE.partialImportMessage
 
 const isPartialImport = (overrides: Partial<FormState>) =>
   !overrides.name || !overrides.managementType
@@ -141,7 +140,7 @@ const NewProperty = () => {
 
   return (
     <div className="max-w-2xl">
-      <h1 className="text-xl font-semibold text-gray-900 mb-8">Add Property</h1>
+      <h1 className="text-xl font-semibold text-gray-900 mb-8">{PROPERTY_PAGES.addHeading}</h1>
       {renderContent()}
     </div>
   )

@@ -8,6 +8,7 @@ import { getStepStates } from '@/domains/propertyCreation/utils/stepCompletion'
 import { StepProperty } from '@/domains/propertyCreation/components/StepProperty'
 import { StepManagementType } from '@/domains/propertyCreation/components/StepManagementType'
 import { PropertyNotFound } from '@/domains/propertyCreation/components/PropertyNotFound'
+import { STEP_MANAGEMENT_TYPE, PROPERTY_PAGES } from '@/domains/propertyCreation/constants/strings'
 import type { ManagementType } from '@/domains/shared/types/property'
 
 const EditProperty = () => {
@@ -41,8 +42,8 @@ const EditProperty = () => {
 
     const message =
       managementType === 'MV'
-        ? 'Switching to MV will clear co-ownership shares from all units. Continue?'
-        : 'Switching to WEG will require you to add co-ownership shares for each unit. Continue?'
+        ? STEP_MANAGEMENT_TYPE.confirmSwitchToMV
+        : STEP_MANAGEMENT_TYPE.confirmSwitchToWEG
 
     if (!window.confirm(message)) return
 
@@ -92,7 +93,7 @@ const EditProperty = () => {
   if (isPropertyNotFound) return renderNotFound()
   return (
     <div className="max-w-2xl">
-      <h1 className="text-xl font-semibold text-gray-900 mb-8">Edit Property</h1>
+      <h1 className="text-xl font-semibold text-gray-900 mb-8">{PROPERTY_PAGES.editHeading}</h1>
       {mode === 'type' ? renderTypeStep() : renderForm()}
     </div>
   )

@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { MOCK_MANAGERS, MOCK_ACCOUNTANTS } from '@/domains/shared/mock/staff'
 import { HelpSection } from '@/domains/shared/components/HelpSection'
+import { STEP_PROPERTY } from '@/domains/propertyCreation/constants/strings'
 import { getPropertyStepState } from '@/domains/propertyCreation/utils/stepCompletion'
 import type { FormState } from '@/domains/propertyCreation/types/form'
 
@@ -22,7 +23,7 @@ const baseInputClass =
 const fieldClass = (hasError: boolean) =>
   `${baseInputClass} ${hasError ? 'border-red-300 focus:ring-red-200' : 'border-gray-200 focus:ring-gray-900'}`
 
-const renderFieldError = (message = 'Required') => (
+const renderFieldError = (message = STEP_PROPERTY.required) => (
   <p className="text-xs text-red-500 mt-1">{message}</p>
 )
 
@@ -55,7 +56,7 @@ export const StepProperty = ({
 
   const renderManagementTypeInfo = () => (
     <p className="text-xs text-gray-400">
-      Management type: <span className="text-gray-500 font-medium">{form.managementType}</span>
+      {STEP_PROPERTY.managementTypePrefix} <span className="text-gray-500 font-medium">{form.managementType}</span>
     </p>
   )
 
@@ -64,27 +65,27 @@ export const StepProperty = ({
       {renderManagementTypeInfo()}
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1.5">Property name</label>
+        <label className="block text-sm font-medium text-gray-700 mb-1.5">{STEP_PROPERTY.propertyNameLabel}</label>
         <input
           type="text"
           value={form.name}
           onChange={(event) => setName(event.target.value)}
-          placeholder="e.g. Togostraße Eigentümergemeinschaft"
+          placeholder={STEP_PROPERTY.propertyNamePlaceholder}
           className={fieldClass(nameError)}
         />
         {nameError && renderFieldError()}
       </div>
 
-      <HelpSection label="Administration" termId="administration">
+      <HelpSection label={STEP_PROPERTY.administrationLabel} termId="administration">
         <div className="border border-gray-100 rounded-xl p-4 flex flex-col gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">Manager</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">{STEP_PROPERTY.managerLabel}</label>
             <select
               value={form.managerId}
               onChange={(event) => setManagerId(event.target.value)}
               className={fieldClass(managerError)}
             >
-              <option value="">Select manager</option>
+              <option value="">{STEP_PROPERTY.managerPlaceholder}</option>
               {MOCK_MANAGERS.map((manager) => (
                 <option key={manager.id} value={manager.id}>
                   {manager.name}
@@ -95,13 +96,13 @@ export const StepProperty = ({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">Accountant</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">{STEP_PROPERTY.accountantLabel}</label>
             <select
               value={form.accountantId}
               onChange={(event) => setAccountantId(event.target.value)}
               className={fieldClass(accountantError)}
             >
-              <option value="">Select accountant</option>
+              <option value="">{STEP_PROPERTY.accountantPlaceholder}</option>
               {MOCK_ACCOUNTANTS.map((accountant) => (
                 <option key={accountant.id} value={accountant.id}>
                   {accountant.name}
@@ -120,14 +121,14 @@ export const StepProperty = ({
             onClick={onBack}
             className="text-sm text-gray-400 hover:text-gray-600"
           >
-            ← Back
+            {STEP_PROPERTY.backButton}
           </button>
         )}
         <button
           type="submit"
           className="bg-gray-900 text-white text-sm px-5 py-2.5 rounded-lg hover:bg-gray-700 transition-colors ml-auto"
         >
-          Next
+          {STEP_PROPERTY.nextButton}
         </button>
       </div>
     </form>
