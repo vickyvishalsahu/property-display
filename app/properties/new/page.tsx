@@ -6,7 +6,7 @@ import { usePropertyForm } from '@/domains/propertyCreation/hooks/usePropertyFor
 import { formFromImport } from '@/domains/propertyCreation/hooks/formFromImport'
 import { PropertyStepper } from '@/domains/propertyCreation/components/PropertyStepper'
 import { StepProperty } from '@/domains/propertyCreation/components/StepProperty'
-import { PdfImport } from '@/domains/propertyCreation/components/PdfImport'
+import { PdfImport } from '@/domains/extraction/components/PdfImport'
 import type { PropertyImport } from '@/domains/shared/types/propertyImport'
 import type { FormState } from '@/domains/propertyCreation/types/form'
 

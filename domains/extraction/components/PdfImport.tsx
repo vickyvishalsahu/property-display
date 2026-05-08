@@ -1,7 +1,7 @@
 'use client'
 
 import { useRef } from 'react'
-import { usePropertyExtraction } from '@/domains/propertyCreation/hooks/usePropertyExtraction'
+import { usePropertyExtraction } from '@/domains/extraction/hooks/usePropertyExtraction'
 import type { PropertyImport } from '@/domains/shared/types/propertyImport'
 
 const renderSpinner = () => (
