@@ -61,10 +61,12 @@ domains/
     hooks/
       useProperties.ts                      # Property CRUD hook (localStorage-backed)
       usePlaces.ts                          # Google Maps Places autocomplete hook
+      useAddressAutocomplete.ts             # Address search state, predictions, and selection logic
     mock/
       properties.ts                         # Seed data — 4 demo properties
       staff.ts                              # Seed data — mock staff members
     components/
+      AddressAutocomplete.tsx               # Address search input (Places API)
       HelpPanel.tsx                         # Slide-in contextual help panel
       HelpSection.tsx                       # Section wrapper with help trigger
       HelpTrigger.tsx                       # ? button that opens the panel
@@ -82,7 +84,6 @@ domains/
       StepBuildings.tsx                     # Step 2 — buildings & units
       StepReview.tsx                        # Step 3 — review & confirm
       BuildingForm.tsx                      # Per-building form with unit rows
-      AddressAutocomplete.tsx               # Address search (Places API)
       PropertyStepper.tsx                   # Step indicator with completion rings
       DraftCard.tsx                         # Draft property card on dashboard
       PropertyNotFound.tsx                  # 404 fallback for unknown property IDs
