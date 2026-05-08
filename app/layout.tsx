@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import Link from 'next/link'
+import { Toaster } from 'sonner'
 import { HelpPanelProvider } from '@/domains/shared/context/HelpPanelContext'
 import { HelpPanel } from '@/domains/shared/components/HelpPanel'
 import { GoogleMapsProvider } from '@/domains/shared/providers/GoogleMapsProvider'
@@ -38,6 +39,7 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => (
         </nav>
         <main className="max-w-5xl mx-auto px-6 py-10">{children}</main>
         <HelpPanel />
+        <Toaster position="top-right" richColors />
       </HelpPanelProvider>
       </GoogleMapsProvider>
     </body>

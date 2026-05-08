@@ -2,6 +2,7 @@
 
 import { Suspense, useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { toast } from 'sonner'
 import { usePropertyForm } from '@/domains/propertyCreation/hooks/usePropertyForm'
 import { formFromImport } from '@/domains/propertyCreation/hooks/formFromImport'
 import { PropertyStepper } from '@/domains/propertyCreation/components/PropertyStepper'
@@ -88,6 +89,11 @@ const MethodSelect = ({ onManual, onImport }: MethodSelectProps) => (
   </div>
 )
 
+const PARTIAL_IMPORT_MESSAGE = "We couldn't extract all the details — review and complete the missing fields."
+
+const isPartialImport = (overrides: Partial<FormState>) =>
+  !overrides.name || !overrides.managementType
+
 const NewProperty = () => {
   const searchParams = useSearchParams()
   const importKey = searchParams.get('import')
@@ -101,12 +107,19 @@ const NewProperty = () => {
       : 'select'
   )
 
+  useEffect(() => {
+    if (importKey && importOverrides && isPartialImport(importOverrides)) {
+      toast.warning(PARTIAL_IMPORT_MESSAGE)
+    }
+  }, [])
+
   const handleManual = () => setMode('type')
 
   const handleImport = (propertyImport: PropertyImport) => {
     const overrides = formFromImport(propertyImport)
     setImportOverrides(overrides)
     setMode(overrides.managementType ? 'form' : 'type')
+    if (isPartialImport(overrides)) toast.warning(PARTIAL_IMPORT_MESSAGE)
   }
 
   const handleTypeSelect = (managementType: ManagementType) => {
