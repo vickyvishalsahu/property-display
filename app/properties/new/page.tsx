@@ -8,7 +8,7 @@ import { PropertyStepper } from '@/domains/propertyCreation/components/PropertyS
 import { StepProperty } from '@/domains/propertyCreation/components/StepProperty'
 import { PdfImport } from '@/domains/propertyCreation/components/PdfImport'
 import type { PropertyImport } from '@/domains/shared/types/propertyImport'
-import type { FormState } from '@/domains/propertyCreation/hooks/usePropertyForm'
+import type { FormState } from '@/domains/propertyCreation/types/form'
 
 const resolveImportOverrides = (importKey: string | null): Partial<FormState> | undefined => {
   if (!importKey) return undefined

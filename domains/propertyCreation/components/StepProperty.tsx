@@ -4,7 +4,7 @@ import { useState } from 'react'
 import type { ManagementType } from '@/domains/shared/types/property'
 import { MOCK_MANAGERS, MOCK_ACCOUNTANTS } from '@/domains/shared/mock/staff'
 import { HelpSection } from '@/domains/shared/components/HelpSection'
-import type { FormState } from '@/domains/propertyCreation/hooks/usePropertyForm'
+import type { FormState } from '@/domains/propertyCreation/types/form'
 
 type Props = {
   form: FormState

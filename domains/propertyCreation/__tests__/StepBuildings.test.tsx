@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { StepBuildings } from '@/domains/propertyCreation/components/StepBuildings'
-import type { FormBuilding } from '@/domains/propertyCreation/hooks/usePropertyForm'
+import type { FormBuilding } from '@/domains/propertyCreation/types/form'
 
 const emptyAddress = () => ({
   streetName: '',

@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { BuildingForm } from './BuildingForm'
-import type { FormBuilding, FormAddress, FormUnit } from '@/domains/propertyCreation/hooks/usePropertyForm'
+import type { FormBuilding, FormAddress, FormUnit } from '@/domains/propertyCreation/types/form'
 
 type Props = {
   managementType: 'WEG' | 'MV'

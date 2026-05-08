@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event'
 import { StepProperty } from '@/domains/propertyCreation/components/StepProperty'
 import { HelpPanelProvider } from '@/domains/shared/context/HelpPanelContext'
 import { MOCK_MANAGERS, MOCK_ACCOUNTANTS } from '@/domains/shared/mock/staff'
-import type { FormState } from '@/domains/propertyCreation/hooks/usePropertyForm'
+import type { FormState } from '@/domains/propertyCreation/types/form'
 
 const emptyForm: FormState = {
   managementType: null,

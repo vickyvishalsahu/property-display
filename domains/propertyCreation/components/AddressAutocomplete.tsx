@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { usePlaces, getAddressObject } from '@/domains/shared/hooks/usePlaces'
-import type { FormAddress } from '@/domains/propertyCreation/hooks/usePropertyForm'
+import type { FormAddress } from '@/domains/propertyCreation/types/form'
 
 type Props = {
   address: FormAddress

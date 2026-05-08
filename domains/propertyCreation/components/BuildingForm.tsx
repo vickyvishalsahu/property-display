@@ -1,7 +1,7 @@
 'use client'
 
 import { VALID_UNIT_TYPES, UNIT_TYPE_LABELS } from '@/domains/propertyCreation/constants/unitTypes'
-import type { FormBuilding, FormAddress, FormUnit } from '@/domains/propertyCreation/hooks/usePropertyForm'
+import type { FormBuilding, FormAddress, FormUnit } from '@/domains/propertyCreation/types/form'
 import { AddressAutocomplete } from '@/domains/propertyCreation/components/AddressAutocomplete'
 import { HelpSection } from '@/domains/shared/components/HelpSection'
 

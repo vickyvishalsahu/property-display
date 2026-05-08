@@ -1,6 +1,6 @@
 import { VALID_MANAGEMENT_TYPES } from '@/domains/shared/constants/propertyTypes'
 import { VALID_UNIT_TYPES } from '@/domains/propertyCreation/constants/unitTypes'
-import type { FormState, FormAddress, FormUnit, FormBuilding } from '@/domains/propertyCreation/hooks/usePropertyForm'
+import type { FormState, FormAddress, FormUnit, FormBuilding } from '@/domains/propertyCreation/types/form'
 import type { PropertyImport, ImportBuilding, ImportUnit, ImportAddress } from '@/domains/shared/types/propertyImport'
 
 const formAddressFromImport = (importAddress: ImportAddress): FormAddress => ({

@@ -3,7 +3,7 @@
 import { ALL_MOCK_STAFF } from '@/domains/shared/mock/staff'
 import { MANAGEMENT_TYPE_LABELS } from '@/domains/shared/constants/propertyTypes'
 import { UNIT_TYPE_LABELS } from '@/domains/propertyCreation/constants/unitTypes'
-import type { FormState, FormAddress } from '@/domains/propertyCreation/hooks/usePropertyForm'
+import type { FormState, FormAddress } from '@/domains/propertyCreation/types/form'
 import type { UnitType } from '@/domains/shared/types/property'
 
 type Props = {

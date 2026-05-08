@@ -2,7 +2,7 @@
 
 import { useCallback, useRef } from 'react'
 import { useMapsLibrary } from '@vis.gl/react-google-maps'
-import type { FormAddress } from '@/domains/propertyCreation/hooks/usePropertyForm'
+import type { FormAddress } from '@/domains/propertyCreation/types/form'
 
 const fieldMap = {
   streetName: ['street_address', 'route'],
