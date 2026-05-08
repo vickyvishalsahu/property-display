@@ -92,16 +92,21 @@ const NewProperty = () => {
   const searchParams = useSearchParams()
   const importKey = searchParams.get('import')
 
-  const [mode, setMode] = useState<'select' | 'type' | 'form'>(importKey ? 'type' : 'select')
   const [importOverrides, setImportOverrides] = useState<Partial<FormState> | undefined>(
     () => resolveImportOverrides(importKey)
+  )
+  const [mode, setMode] = useState<'select' | 'type' | 'form'>(
+    importKey
+      ? (importOverrides?.managementType ? 'form' : 'type')
+      : 'select'
   )
 
   const handleManual = () => setMode('type')
 
   const handleImport = (propertyImport: PropertyImport) => {
-    setImportOverrides(formFromImport(propertyImport))
-    setMode('type')
+    const overrides = formFromImport(propertyImport)
+    setImportOverrides(overrides)
+    setMode(overrides.managementType ? 'form' : 'type')
   }
 
   const handleTypeSelect = (managementType: ManagementType) => {
