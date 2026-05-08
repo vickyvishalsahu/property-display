@@ -12,6 +12,21 @@ import type { Property } from '@/domains/shared/types/property'
 const resolveStaffName = (staffId: string) =>
   ALL_MOCK_STAFF.find((staffMember) => staffMember.id === staffId)?.name ?? '—'
 
+const filterProperties = (properties: Property[], query: string): Property[] => {
+  const trimmed = query.trim().toLowerCase()
+  if (!trimmed) return properties
+  return properties.filter((property) => {
+    if (property.name.toLowerCase().includes(trimmed)) return true
+    if (resolveStaffName(property.managerId).toLowerCase().includes(trimmed)) return true
+    return property.buildings.some((building) =>
+      building.addresses.some((address) => {
+        const full = `${address.streetName} ${address.streetNumber} ${address.postalCode} ${address.city}`
+        return full.toLowerCase().includes(trimmed)
+      })
+    )
+  })
+}
+
 const countTotalUnits = (property: Property) =>
   property.buildings.reduce((total, building) => total + building.units.length, 0)
 
@@ -84,15 +99,17 @@ const PROPERTY_CARD_SKELETON = [
 const Dashboard = () => {
   const { properties: allProperties, removeProperty } = useProperties()
   const [isReady, setIsReady] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
 
   useEffect(() => {
     const timer = setTimeout(() => setIsReady(true), 1000)
     return () => clearTimeout(timer)
   }, [])
 
-  const draftProperties = allProperties.filter((property) => property.isDraft)
-  const completeProperties = allProperties.filter((property) => !property.isDraft)
   const totalCount = allProperties.length
+  const visibleProperties = filterProperties(allProperties, searchQuery)
+  const draftProperties = visibleProperties.filter((property) => property.isDraft)
+  const completeProperties = visibleProperties.filter((property) => !property.isDraft)
 
   const renderSkeleton = () => (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -104,10 +121,31 @@ const Dashboard = () => {
     </div>
   )
 
+  const renderSearch = () => (
+    <div className="mb-6">
+      <input
+        type="text"
+        value={searchQuery}
+        onChange={(event) => setSearchQuery(event.target.value)}
+        placeholder="Search by name, address or manager…"
+        className="w-full max-w-sm border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900"
+      />
+    </div>
+  )
+
+  const renderNoResults = () => (
+    <p className="text-sm text-gray-400 py-10 text-center">No properties match "{searchQuery}".</p>
+  )
+
   const renderContent = () => {
     if (!isReady) return renderSkeleton()
     if (totalCount === 0) return renderEmptyState()
-    return renderProperties()
+    return (
+      <>
+        {renderSearch()}
+        {visibleProperties.length === 0 ? renderNoResults() : renderProperties()}
+      </>
+    )
   }
 
   const renderEmptyState = () => (
@@ -139,9 +177,6 @@ const Dashboard = () => {
     <div>
       <div className="mb-6">
         <h1 className="text-xl font-semibold text-gray-900">Properties</h1>
-        {totalCount > 0 && (
-          <p className="text-sm text-gray-500 mt-0.5">{totalCount} total</p>
-        )}
       </div>
       {renderContent()}
     </div>
