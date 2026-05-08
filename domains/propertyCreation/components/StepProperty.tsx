@@ -50,8 +50,15 @@ export const StepProperty = ({
     onNext()
   }
 
+  const renderManagementTypeInfo = () => (
+    <p className="text-xs text-gray-400">
+      Management type: <span className="text-gray-500 font-medium">{form.managementType}</span>
+    </p>
+  )
+
   return (
     <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-6">
+      {renderManagementTypeInfo()}
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1.5">Property name</label>
