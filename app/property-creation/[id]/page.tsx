@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { usePropertyForm } from '@/domains/propertyCreation/hooks/usePropertyForm'
 import { PropertyStepper } from '@/domains/propertyCreation/components/PropertyStepper'
+import { getStepStates } from '@/domains/propertyCreation/utils/stepCompletion'
 import { StepProperty } from '@/domains/propertyCreation/components/StepProperty'
 import { StepManagementType } from '@/domains/propertyCreation/components/StepManagementType'
 import { PropertyNotFound } from '@/domains/propertyCreation/components/PropertyNotFound'
@@ -69,9 +70,11 @@ const EditProperty = () => {
     />
   )
 
+  const stepStates = getStepStates(form)
+
   const renderForm = () => (
     <>
-      <PropertyStepper activeStep={0} />
+      <PropertyStepper activeStep={0} stepStates={stepStates} />
       <StepProperty
         form={form}
         setName={setName}

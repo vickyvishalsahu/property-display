@@ -3,6 +3,7 @@
 import { useParams, useRouter } from 'next/navigation'
 import { usePropertyForm } from '@/domains/propertyCreation/hooks/usePropertyForm'
 import { PropertyStepper } from '@/domains/propertyCreation/components/PropertyStepper'
+import { getStepStates } from '@/domains/propertyCreation/utils/stepCompletion'
 import { StepBuildings } from '@/domains/propertyCreation/components/StepBuildings'
 import { PropertyNotFound } from '@/domains/propertyCreation/components/PropertyNotFound'
 
@@ -36,10 +37,12 @@ const BuildingsStep = () => {
 
   const renderNotFound = () => <PropertyNotFound />
 
+  const stepStates = getStepStates(form)
+
   const renderForm = () => (
     <div className="max-w-2xl">
       <h1 className="text-xl font-semibold text-gray-900 mb-8">Edit Property</h1>
-      <PropertyStepper activeStep={1} />
+      <PropertyStepper activeStep={1} stepStates={stepStates} />
       <StepBuildings
         managementType={form.managementType ?? 'MV'}
         buildings={form.buildings}

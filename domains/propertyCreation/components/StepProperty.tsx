@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { MOCK_MANAGERS, MOCK_ACCOUNTANTS } from '@/domains/shared/mock/staff'
 import { HelpSection } from '@/domains/shared/components/HelpSection'
+import { getPropertyStepState } from '@/domains/propertyCreation/utils/stepCompletion'
 import type { FormState } from '@/domains/propertyCreation/types/form'
 
 type Props = {
@@ -34,10 +35,7 @@ export const StepProperty = ({
 }: Props) => {
   const [submitted, setSubmitted] = useState(false)
 
-  const canProceed =
-    form.name.trim() !== '' &&
-    form.managerId !== '' &&
-    form.accountantId !== ''
+  const canProceed = getPropertyStepState(form) === 'complete'
 
   const nameError = submitted && form.name.trim() === ''
   const managerError = submitted && form.managerId === ''
