@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import type { PropertyImport } from '@/domains/shared/types/propertyImport'
 import { buildMessages, groq, validateExtraction } from '@/domains/extraction/utils'
-import { MAX_RETRIES } from '@/domains/extraction/constants'
+import { MAX_RETRIES } from '@/domains/extraction/constants/prompt'
 
 const extractWithRetry = async (text: string): Promise<PropertyImport> => {
   let lastError = ''

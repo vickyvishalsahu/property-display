@@ -1,6 +1,6 @@
 import { ImportAddress, ImportBuilding, ImportUnit, PropertyImport } from "@/domains/shared/types/propertyImport";
 import Groq from "groq-sdk";
-import { SYSTEM_PROMPT } from "../constants";
+import { SYSTEM_PROMPT } from "../constants/prompt";
 import { Message } from "../types";
 
 export const groq = new Groq({ apiKey: process.env.GROQ_API_KEY })
