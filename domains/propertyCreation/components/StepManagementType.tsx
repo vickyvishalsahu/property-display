@@ -52,7 +52,7 @@ export const StepManagementType = ({ selected, onSelect, onBack }: Props) => {
           <div className="relative aspect-3/4">
             <Image src={image} alt={title} fill sizes="30vw" className="object-cover" />
           </div>
-          <div className="py-2 px-4 flex flex-col gap-1">
+          <div className="pb-3 px-4 flex flex-col gap-1">
             <p className="text-gray-900 font-semibold text-sm">{title}</p>
             <p className="text-gray-500 text-xs leading-relaxed">{description}</p>
           </div>
