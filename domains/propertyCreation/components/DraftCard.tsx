@@ -20,7 +20,7 @@ export const DraftCard = ({ draft, onDiscard }: Props) => {
   const managementLabel = MANAGEMENT_TYPE_LABELS[draft.managementType]
 
   return (
-    <div className="bg-amber-50 border border-amber-200 rounded-xl p-5 flex flex-col gap-4">
+    <div className="h-full bg-amber-50 border border-amber-200 rounded-xl p-5 flex flex-col gap-4">
       <div className="flex items-start justify-between gap-2">
         <div className="flex flex-col gap-1">
           <span className="text-xs font-medium text-amber-700">{managementLabel}</span>
@@ -31,7 +31,7 @@ export const DraftCard = ({ draft, onDiscard }: Props) => {
         </span>
       </div>
 
-      <div className="flex items-center justify-between pt-1 border-t border-amber-200">
+      <div className="flex items-center justify-between pt-1 border-t border-amber-200 mt-auto">
         <Link
           href={getDraftRoute(draft)}
           className="text-sm font-medium text-amber-900 hover:text-amber-700"
