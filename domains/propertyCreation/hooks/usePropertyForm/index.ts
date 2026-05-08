@@ -3,150 +3,16 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useProperties } from '@/domains/shared/hooks/useProperties'
-import type { ManagementType, UnitType, Address, WEGProperty, MVProperty, WEGUnit, MVUnit, Property } from '@/domains/shared/types/property'
-import type { FormAddress, FormUnit, FormBuilding, FormState } from '@/domains/propertyCreation/types/form'
-
-const emptyAddress = (): FormAddress => ({
-  streetName: '',
-  streetNumber: '',
-  postalCode: '',
-  city: '',
-})
-
-const emptyUnit = (): FormUnit => ({
-  id: crypto.randomUUID(),
-  number: '',
-  type: '',
-  floor: '',
-  entrance: '',
-  size: '',
-  rooms: '',
-  constructionYear: '',
-  coOwnershipShare: '',
-})
-
-const emptyBuilding = (): FormBuilding => ({
-  id: crypto.randomUUID(),
-  addresses: [emptyAddress(), null],
-  units: [emptyUnit()],
-})
-
-const makeId = (prefix: string) => `${prefix}-${crypto.randomUUID().slice(0, 6)}`
-
-const toAddress = (formAddress: FormAddress): Address => ({
-  streetName: formAddress.streetName,
-  streetNumber: formAddress.streetNumber,
-  postalCode: formAddress.postalCode,
-  city: formAddress.city,
-})
-
-const safeInt = (value: string) => {
-  const parsed = parseInt(value, 10)
-  return isNaN(parsed) ? 0 : parsed
-}
-
-const safeFloat = (value: string) => {
-  const parsed = parseFloat(value)
-  return isNaN(parsed) ? 0 : parsed
-}
-
-const safeString = (value: number) => (isNaN(value) ? '' : String(value))
-
-const buildProperty = (form: FormState, propertyId: string, isDraft: boolean): WEGProperty | MVProperty => {
-  const base = {
-    id: propertyId,
-    name: form.name,
-    managerId: form.managerId,
-    accountantId: form.accountantId,
-    isDraft,
-  }
-
-  if (form.managementType === 'WEG') {
-    return {
-      ...base,
-      managementType: 'WEG',
-      buildings: form.buildings.map((building) => {
-        const addresses: [Address, ...Address[]] = building.addresses[1]
-          ? [toAddress(building.addresses[0]), toAddress(building.addresses[1])]
-          : [toAddress(building.addresses[0])]
-
-        const units: WEGUnit[] = building.units.map((unit) => ({
-          id: unit.id,
-          number: unit.number,
-          type: unit.type as UnitType,
-          floor: safeInt(unit.floor),
-          entrance: unit.entrance,
-          size: safeFloat(unit.size),
-          rooms: safeInt(unit.rooms),
-          constructionYear: safeInt(unit.constructionYear),
-          coOwnershipShare: safeFloat(unit.coOwnershipShare),
-        }))
-
-        return { id: building.id, addresses, units }
-      }),
-    }
-  }
-
-  return {
-    ...base,
-    managementType: 'MV',
-    buildings: form.buildings.map((building) => {
-      const addresses: [Address, ...Address[]] = building.addresses[1]
-        ? [toAddress(building.addresses[0]), toAddress(building.addresses[1])]
-        : [toAddress(building.addresses[0])]
-
-      const units: MVUnit[] = building.units.map((unit) => ({
-        id: unit.id,
-        number: unit.number,
-        type: unit.type as UnitType,
-        floor: safeInt(unit.floor),
-        entrance: unit.entrance,
-        size: safeFloat(unit.size),
-        rooms: safeInt(unit.rooms),
-        constructionYear: safeInt(unit.constructionYear),
-      }))
-
-      return { id: building.id, addresses, units }
-    }),
-  }
-}
-
-const formFromProperty = (property: Property): FormState => ({
-  managementType: property.managementType,
-  name: property.name,
-  managerId: property.managerId,
-  accountantId: property.accountantId,
-  buildings: property.buildings.map((building) => ({
-    id: building.id,
-    addresses: [
-      {
-        streetName: building.addresses[0].streetName,
-        streetNumber: building.addresses[0].streetNumber,
-        postalCode: building.addresses[0].postalCode,
-        city: building.addresses[0].city,
-      },
-      building.addresses[1]
-        ? {
-            streetName: building.addresses[1].streetName,
-            streetNumber: building.addresses[1].streetNumber,
-            postalCode: building.addresses[1].postalCode,
-            city: building.addresses[1].city,
-          }
-        : null,
-    ] as [FormAddress, FormAddress | null],
-    units: building.units.map((unit) => ({
-      id: unit.id,
-      number: unit.number,
-      type: unit.type,
-      floor: safeString(unit.floor),
-      entrance: unit.entrance,
-      size: safeString(unit.size),
-      rooms: safeString(unit.rooms),
-      constructionYear: safeString(unit.constructionYear),
-      coOwnershipShare: 'coOwnershipShare' in unit ? safeString(unit.coOwnershipShare) : '',
-    })),
-  })),
-})
+import type { ManagementType } from '@/domains/shared/types/property'
+import type { FormAddress, FormUnit, FormState } from '@/domains/propertyCreation/types/form'
+import {
+  emptyBuilding,
+  emptyAddress,
+  emptyUnit,
+  makeId,
+  buildProperty,
+  formFromProperty,
+} from './utils'
 
 export const usePropertyForm = (
   initialPropertyId?: string,
@@ -164,22 +30,27 @@ export const usePropertyForm = (
   )
   const [propertyId, setPropertyId] = useState<string | null>(null)
   const [originalIsDraft, setOriginalIsDraft] = useState(true)
+  const [initialized, setInitialized] = useState(!initialPropertyId)
 
   const { properties, upsertProperty, removeProperty, isLoaded } = useProperties()
-
-  const isLoading = !isLoaded
-  const isPropertyNotFound = isLoaded && !!initialPropertyId && !propertyId
   const router = useRouter()
 
-  useEffect(() => {
-    if (!initialPropertyId || propertyId) return
-    const match = properties.find((property) => property.id === initialPropertyId)
-    if (match) {
+  // Initialize form from stored property the first time data is available.
+  // Called during render (not in an effect) so no cascading setState occurs.
+  if (isLoaded && !initialized) {
+    const match = initialPropertyId
+      ? properties.find((property) => property.id === initialPropertyId)
+      : null
+    if (match && initialPropertyId) {
       setForm(formFromProperty(match))
       setPropertyId(initialPropertyId)
       setOriginalIsDraft(match.isDraft)
     }
-  }, [properties])
+    setInitialized(true)
+  }
+
+  const isLoading = !initialized
+  const isPropertyNotFound = initialized && !!initialPropertyId && !propertyId
 
   useEffect(() => {
     if (!propertyId) return
