@@ -3,7 +3,12 @@
 import { useState, useEffect, useRef } from 'react'
 import { usePlaces, getAddressObject } from '@/domains/shared/hooks/usePlaces'
 import type { FormAddress } from '@/domains/propertyCreation/types/form'
-import { ADDRESS_AUTOCOMPLETE } from '@/domains/propertyCreation/constants/strings'
+import { ADDRESS_AUTOCOMPLETE } from '@/domains/shared/constants/strings'
+
+type Prediction = {
+  description: string
+  place_id: string
+}
 
 type Props = {
   address: FormAddress
@@ -28,8 +33,9 @@ const inputClass =
 export const AddressAutocomplete = ({ address, onSelect }: Props) => {
   const { fetchPredictions, fetchAddressDetails, attributionRef } = usePlaces()
 
+  const [prevAddress, setPrevAddress] = useState(address)
   const [query, setQuery] = useState(() => formatAddress(address))
-  const [predictions, setPredictions] = useState<google.maps.places.AutocompletePrediction[]>([])
+  const [predictions, setPredictions] = useState<Prediction[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
   const [showNumberHint, setShowNumberHint] = useState(false)
@@ -37,9 +43,15 @@ export const AddressAutocomplete = ({ address, onSelect }: Props) => {
   const containerRef = useRef<HTMLDivElement | null>(null)
   const inputRef = useRef<HTMLInputElement | null>(null)
 
-  useEffect(() => {
+  if (
+    address.streetName !== prevAddress.streetName ||
+    address.streetNumber !== prevAddress.streetNumber ||
+    address.postalCode !== prevAddress.postalCode ||
+    address.city !== prevAddress.city
+  ) {
+    setPrevAddress(address)
     setQuery(formatAddress(address))
-  }, [address.streetName, address.streetNumber, address.postalCode, address.city])
+  }
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -73,7 +85,7 @@ export const AddressAutocomplete = ({ address, onSelect }: Props) => {
     }, 300)
   }
 
-  const handleSelect = async (prediction: google.maps.places.AutocompletePrediction) => {
+  const handleSelect = async (prediction: Prediction) => {
     setIsOpen(false)
     setQuery(prediction.description)
     setPredictions([])

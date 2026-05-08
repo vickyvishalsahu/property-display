@@ -2,7 +2,7 @@
 
 import { VALID_UNIT_TYPES, UNIT_TYPE_LABELS } from '@/domains/propertyCreation/constants/unitTypes'
 import type { FormBuilding, FormAddress, FormUnit } from '@/domains/propertyCreation/types/form'
-import { AddressAutocomplete } from '@/domains/propertyCreation/components/AddressAutocomplete'
+import { AddressAutocomplete } from '@/domains/shared/components/AddressAutocomplete'
 import { HelpSection } from '@/domains/shared/components/HelpSection'
 import { BUILDING_FORM } from '@/domains/propertyCreation/constants/strings'
 

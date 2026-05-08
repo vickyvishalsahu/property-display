@@ -19,6 +19,12 @@ export const DASHBOARD = {
   emptyDescription: 'Add your first property to get started.',
 }
 
+export const ADDRESS_AUTOCOMPLETE = {
+  placeholder: 'e.g. Togostraße 75, Berlin',
+  searching: 'Searching…',
+  noHouseNumberHint: 'No house number found — add it after the street name (e.g. Togostraße 75)',
+}
+
 export const PROPERTY_NOT_FOUND = {
   heading: 'Property not found',
   description: 'This property does not exist or may have been removed.',
