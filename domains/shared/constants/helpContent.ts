@@ -6,7 +6,7 @@ export type HelpEntry = {
 export const HELP_CONTENT: Record<string, HelpEntry> = {
   administration: {
     title: 'Administration',
-    body: 'The manager oversees day-to-day operations of the property — maintenance, communication with owners or tenants, and compliance. The accountant handles financial reporting, cost allocation, and annual statements. Both roles are assigned per property.',
+    body: 'The **manager** oversees day-to-day operations of the property — maintenance, communication with owners or tenants, and compliance.\n\nThe **accountant** handles financial reporting, cost allocation, and annual statements.\n\nBoth roles are mandatory and assigned per property.',
   },
   'management-type': {
     title: 'Management type',
