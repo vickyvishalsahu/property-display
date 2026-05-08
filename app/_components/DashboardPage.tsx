@@ -1,10 +1,12 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { ALL_MOCK_STAFF } from '@/domains/shared/mock/staff'
 import { MANAGEMENT_TYPE_LABELS } from '@/domains/shared/constants/propertyTypes'
 import { useProperties } from '@/domains/shared/hooks/useProperties'
 import { DraftCard } from '@/domains/propertyCreation/components/DraftCard'
+import { SkeletonLoading } from '@/domains/shared/components/SkeletonLoading'
 import type { Property } from '@/domains/shared/types/property'
 
 const resolveStaffName = (staffId: string) =>
@@ -72,11 +74,41 @@ const PropertyCard = ({ property }: { property: Property }) => {
   )
 }
 
+const PROPERTY_CARD_SKELETON = [
+  'h-3 w-16 rounded-full',
+  'h-5 w-3/4 rounded-md mt-0.5',
+  'h-3 w-16 rounded-full mt-2',
+  'h-3 w-24 rounded-full mt-1',
+]
+
 const Dashboard = () => {
   const { properties: allProperties, removeProperty } = useProperties()
+  const [isReady, setIsReady] = useState(false)
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsReady(true), 1000)
+    return () => clearTimeout(timer)
+  }, [])
+
   const draftProperties = allProperties.filter((property) => property.isDraft)
   const completeProperties = allProperties.filter((property) => !property.isDraft)
   const totalCount = allProperties.length
+
+  const renderSkeleton = () => (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      {Array.from({ length: 4 }).map((_, index) => (
+        <div key={index} className="bg-white border border-gray-200 rounded-xl p-5 flex flex-col gap-2">
+          <SkeletonLoading classNameList={PROPERTY_CARD_SKELETON} />
+        </div>
+      ))}
+    </div>
+  )
+
+  const renderContent = () => {
+    if (!isReady) return renderSkeleton()
+    if (totalCount === 0) return renderEmptyState()
+    return renderProperties()
+  }
 
   const renderEmptyState = () => (
     <div className="flex flex-col items-center justify-center py-24 text-center gap-4">
@@ -111,7 +143,7 @@ const Dashboard = () => {
           <p className="text-sm text-gray-500 mt-0.5">{totalCount} total</p>
         )}
       </div>
-      {totalCount === 0 ? renderEmptyState() : renderProperties()}
+      {renderContent()}
     </div>
   )
 }
