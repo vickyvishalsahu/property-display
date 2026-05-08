@@ -28,6 +28,9 @@ const fieldClass = (hasError: boolean) =>
 
 const renderFieldError = () => <p className="text-xs text-red-500 mt-1">{BUILDING_FORM.required}</p>
 
+const isAddressComplete = (address: FormAddress) =>
+  address.streetName.trim() !== '' && address.streetNumber.trim() !== ''
+
 export const BuildingForm = ({
   building,
   buildingIndex,
@@ -42,6 +45,9 @@ export const BuildingForm = ({
   onUpdateUnit,
 }: Props) => {
   const canRemoveUnit = building.units.length > 1
+
+  const address1Incomplete = submitted && !isAddressComplete(building.addresses[0])
+  const address2Incomplete = submitted && building.addresses[1] !== null && !isAddressComplete(building.addresses[1])
 
   const renderSecondAddress = () => {
     if (!building.addresses[1]) {
@@ -72,6 +78,7 @@ export const BuildingForm = ({
           address={building.addresses[1]}
           onSelect={(address) => onSetAddress(1, address)}
         />
+        {address2Incomplete && <p className="text-xs text-red-500 mt-1">{BUILDING_FORM.addressIncomplete}</p>}
       </div>
     )
   }
@@ -220,6 +227,7 @@ export const BuildingForm = ({
           address={building.addresses[0]}
           onSelect={(address) => onSetAddress(0, address)}
         />
+        {address1Incomplete && <p className="text-xs text-red-500 mt-1">{BUILDING_FORM.addressIncomplete}</p>}
       </div>
 
       {renderSecondAddress()}

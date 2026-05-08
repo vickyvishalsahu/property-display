@@ -78,6 +78,7 @@ export const BUILDING_FORM = {
   constructionYearLabel: 'Constr. year',
   coOwnershipShareLabel: 'Co-own. share',
   required: 'Required',
+  addressIncomplete: 'Street number is required',
 }
 
 export const NEW_PROPERTY_PAGE = {
