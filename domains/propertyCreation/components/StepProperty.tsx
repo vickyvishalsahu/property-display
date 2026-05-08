@@ -10,6 +10,7 @@ type Props = {
   setName: (name: string) => void
   setManagerId: (id: string) => void
   setAccountantId: (id: string) => void
+  onBack?: () => void
   onNext: () => void
 }
 
@@ -28,6 +29,7 @@ export const StepProperty = ({
   setName,
   setManagerId,
   setAccountantId,
+  onBack,
   onNext,
 }: Props) => {
   const [submitted, setSubmitted] = useState(false)
@@ -110,10 +112,19 @@ export const StepProperty = ({
         </div>
       </HelpSection>
 
-      <div className="flex justify-end pt-2">
+      <div className="flex justify-between items-center pt-2">
+        {onBack && (
+          <button
+            type="button"
+            onClick={onBack}
+            className="text-sm text-gray-400 hover:text-gray-600"
+          >
+            ← Back
+          </button>
+        )}
         <button
           type="submit"
-          className="bg-gray-900 text-white text-sm px-5 py-2.5 rounded-lg hover:bg-gray-700 transition-colors"
+          className="bg-gray-900 text-white text-sm px-5 py-2.5 rounded-lg hover:bg-gray-700 transition-colors ml-auto"
         >
           Next
         </button>

@@ -27,9 +27,10 @@ const resolveImportOverrides = (importKey: string | null): Partial<FormState> | 
 
 type PropertyFormStepProps = {
   importOverrides?: Partial<FormState>
+  onBack: () => void
 }
 
-const PropertyFormStep = ({ importOverrides }: PropertyFormStepProps) => {
+const PropertyFormStep = ({ importOverrides, onBack }: PropertyFormStepProps) => {
   const router = useRouter()
 
   const {
@@ -53,6 +54,7 @@ const PropertyFormStep = ({ importOverrides }: PropertyFormStepProps) => {
         setName={setName}
         setManagerId={setManagerId}
         setAccountantId={setAccountantId}
+        onBack={onBack}
         onNext={activateDraft}
       />
     </>
@@ -108,7 +110,7 @@ const NewProperty = () => {
   }
 
   const renderContent = () => {
-    if (mode === 'form') return <PropertyFormStep importOverrides={importOverrides} />
+    if (mode === 'form') return <PropertyFormStep importOverrides={importOverrides} onBack={() => setMode('type')} />
     if (mode === 'type') return (
       <StepManagementType
         selected={importOverrides?.managementType ?? null}
