@@ -361,3 +361,33 @@ Manual property entry is the main friction point in the wizard. Property manager
 **Partial pre-fill.** The `PropertyImport` type has all fields optional. A PDF with buildings and units but no management type will pre-fill step 2 and leave step 1 empty — the user still picks WEG or MV. The existing inline validation catches anything still missing when the user tries to advance.
 
 **Fallback.** Two distinct error states are surfaced: `'pdf'` (text extraction failed — likely a scanned/image PDF) and `'ai'` (extraction or validation failed after retries). Both show an inline message in the import button area with a "Try again" link that resets to idle. The user can also ignore the error and add the property manually.
+
+---
+
+## ADR-011: State Management in `usePropertyForm`
+
+### Context
+
+`usePropertyForm` manages the entire property creation and editing form: management type, name, manager, accountant, and a dynamic list of buildings each containing a dynamic list of units. The question was which state primitive to use: `useState`, `useReducer`, a global store (Zustand), or a form library (React Hook Form).
+
+### Options considered
+
+**`useReducer`** — enumerates every state transition as a named action (`ADD_BUILDING`, `REMOVE_UNIT`, `SET_ADDRESS`, etc.). Makes all transitions testable in isolation without mounting a component. The downside is boilerplate: an action type union, a reducer function, and dispatch calls at every callsite. Worth it when transitions are conditional on each other or when the same action is dispatched from many places.
+
+**Zustand** — a global store accessed from any component without prop-drilling. The right tool when state needs to outlive a component tree or be read by unrelated components across the app. `usePropertyForm` is scoped to the creation flow — it mounts when you enter the wizard and unmounts when you leave. There is no cross-page sharing need.
+
+**React Hook Form** — keeps form values in uncontrolled refs rather than state, avoiding re-renders on every keystroke. Valuable for large flat forms where performance is measurable. This form is deeply nested (buildings → units → fields) with WEG/MV branching and a custom submit path that writes to localStorage rather than posting to an API. The `useFieldArray` API would handle dynamic rows, but the configuration overhead would exceed the benefit at this scale.
+
+**`useState`** — one state atom (`form: FormState`), updated via named setter functions that the hook owns. Simple, co-located, no dependencies.
+
+### Decision: `useState`
+
+The form state has one owner (the hook), one consumer tree (the creation/editing flow), and no async coordination between slices. The complexity is in the *shape* of the data, not in the *coordination* of state changes. Each setter is a straightforward immutable update — effectively an inline reducer action — and the hook is the only place those updates happen.
+
+The many `setForm((previousForm) => ...)` calls are structurally identical to what a reducer would do, just without the named dispatch layer. That layer becomes worth adding when you need to test transitions independently or when the same action fires from multiple unrelated places. Neither is true here.
+
+### When to revisit
+
+- If the same mutation (e.g. `REMOVE_UNIT`) needs to be triggered from multiple unrelated components, switch to `useReducer` — it centralises the logic and makes dispatch the shared interface.
+- If form state needs to survive navigation (e.g. a user leaves mid-creation and returns), extract to Zustand with a `persist` middleware.
+- If the unit table grows to 50+ rows and keystroke lag becomes measurable, consider React Hook Form with `useFieldArray` for the units section only.
