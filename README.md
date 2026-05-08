@@ -2,6 +2,11 @@
 
 A focused internal tool for property managers. Built as a case study MVP with two surfaces: a portfolio dashboard and a property creation flow.
 
+## Demo
+
+- [Walkthrough Part 1](https://www.loom.com/share/a7224bfdd2764155a18fda43d5ba0a5e)
+- [Walkthrough Part 2](https://www.loom.com/share/56b6f21bd5f34df6bf024ac16a96537c)
+
 ---
 
 ## What it does
