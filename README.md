@@ -11,7 +11,7 @@ A focused internal tool for property managers. Built as a case study MVP with tw
 
 ## What it does
 
-Buena acquires traditional German property management companies (*Hausverwaltungen*) and runs them on a unified platform. This MVP demonstrates the core loop:
+A platform for managing traditional German property management companies (*Hausverwaltungen*). This MVP demonstrates the core loop:
 
 1. **Dashboard** — view all properties at a glance (name, type, buildings, units, assigned manager); search by name, address, or manager
 2. **Add Property** — register a new property via a guided multi-step flow
