@@ -1,4 +1,4 @@
-# Buena — Property Management MVP
+# Property Management
 
 A focused internal tool for property managers. Built as a case study MVP with two surfaces: a portfolio dashboard and a property creation flow.
 
