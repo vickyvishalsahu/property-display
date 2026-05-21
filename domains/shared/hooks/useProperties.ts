@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import type { Property } from '@/domains/shared/types/property'
 import { MOCK_PROPERTIES } from '@/domains/shared/mock/properties'
 
-const STORAGE_KEY = 'buena_properties'
+const STORAGE_KEY = 'property_manager_properties'
 
 export const useProperties = () => {
   const [properties, setProperties] = useState<Property[]>(MOCK_PROPERTIES)

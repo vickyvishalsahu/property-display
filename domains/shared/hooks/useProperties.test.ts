@@ -14,7 +14,7 @@ const makeProperty = (id: string, isDraft = false): Property => ({
   buildings: [],
 })
 
-const STORAGE_KEY = 'buena_properties'
+const STORAGE_KEY = 'property_manager_properties'
 
 describe('useProperties', () => {
   beforeEach(() => {
