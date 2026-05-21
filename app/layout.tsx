@@ -17,7 +17,7 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: { template: NAVIGATION.metaTitleTemplate, default: NAVIGATION.metaDefaultTitle },
   description: NAVIGATION.metaDescription,
-  icons: { icon: '/buena_logo.png' },
+  icons: { icon: '/logo.png' },
 }
 
 const RootLayout = ({ children }: { children: React.ReactNode }) => (
