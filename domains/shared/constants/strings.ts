@@ -1,8 +1,8 @@
 export const NAVIGATION = {
-  brand: 'Buena',
+  brand: 'Property Manager',
   addProperty: 'Add Property',
-  metaTitleTemplate: 'Buena | %s',
-  metaDefaultTitle: 'Buena',
+  metaTitleTemplate: 'Property Manager | %s',
+  metaDefaultTitle: 'Property Manager',
   metaDescription: 'Property management, simplified.',
 }
 
